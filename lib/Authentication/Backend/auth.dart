@@ -10,7 +10,7 @@ class AuthUser {
    Stream<User?> get authStateChanges =>
       FirebaseAuth.instance.authStateChanges();
   //create user with email and password
-  static Future<User?> createUserWithEmailAndPassword({
+   Future<User?> createUserWithEmailAndPassword({
     required String email,
     required String userName,
     required String password,
@@ -56,7 +56,7 @@ class AuthUser {
   }
 
   //Signin user with email and password
-  static Future<void> signInUserWithEmailAndPassword({
+   Future<void> signInUserWithEmailAndPassword({
     required String email,
     required String password,
     required BuildContext context,
@@ -86,7 +86,7 @@ class AuthUser {
   }
 
   // Sign out User
-  static Future<void> signOutUser() async {
+   Future<void> signOutUser() async {
     try {
       await FirebaseAuth.instance.signOut();
     } catch (e) {

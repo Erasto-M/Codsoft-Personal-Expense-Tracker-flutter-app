@@ -5,7 +5,7 @@ import 'package:personal_expense_tracker_codsoft/Widgets/colors.dart';
 TextFormField showTextFormField({
   required TextEditingController controller,
   required String labelText,
-  required Function(String?)? validator,
+  required Function(String)? validator,
   required IconData prefixIcon,
   required IconData? suffixIcon,
   required TextInputType textInputType,
@@ -14,11 +14,14 @@ TextFormField showTextFormField({
   return TextFormField(
     keyboardType: textInputType,
     controller: controller,
+    autovalidateMode: AutovalidateMode.disabled,
     textCapitalization: TextCapitalization.sentences,
     textAlign: TextAlign.start,
     autocorrect: true,
     obscureText: obscureText,
     decoration: InputDecoration(
+      prefixIcon: Icon(prefixIcon),
+      suffixIcon: Icon(suffixIcon),
       labelText: labelText,
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
@@ -79,10 +82,22 @@ Widget showOutlinedButton({
   required Function() function,
   required String text,
 }) {
-  return OutlinedButton(
-    onPressed: function,
-    child: Text(
-      text,
+  return Container(
+    margin: const EdgeInsets.all(10),
+    padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 10),
+    child: OutlinedButton(
+      style: OutlinedButton.styleFrom(
+        backgroundColor: outlinedButtonColors,
+      ),
+      onPressed: function,
+      child: Text(
+        text,
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
     ),
   );
 }
