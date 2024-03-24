@@ -47,7 +47,7 @@ Text showBigText({
 }
 
 // medium text
-Text mediumBigText({
+Text mediumText({
   required String text,
   required FontWeight fontWeight,
 }) {
@@ -62,7 +62,7 @@ Text mediumBigText({
 }
 
 //small Text
-Text smallBigText({
+Text smallText({
   required String text,
   required FontWeight fontWeight,
 }) {

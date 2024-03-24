@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:personal_expense_tracker_codsoft/Authentication/Providers/auth_providers.dart';
+import 'package:personal_expense_tracker_codsoft/Authentication/Screens/login_screen.dart';
 import 'package:personal_expense_tracker_codsoft/Widgets/reusable_widgets.dart';
 
 class SignUpScreen extends ConsumerWidget {
@@ -15,7 +16,7 @@ class SignUpScreen extends ConsumerWidget {
     final usernameController = ref.watch(userNameControllerProvider);
     final passwordController = ref.watch(passWordControllerProvider);
     final confirmPasswordController =
-    ref.watch(confirmPasswordControllerProvider);
+        ref.watch(confirmPasswordControllerProvider);
 
     // isLoading
     final isLoading = ref.watch(isLoadingProvider);
@@ -25,15 +26,17 @@ class SignUpScreen extends ConsumerWidget {
         body: Container(
           padding: const EdgeInsets.all(15),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              showBigText(
-                  text: "Sign Up ", fontWeight: FontWeight.bold),
+              showLargespace(),
+              showLargespace(),
+              showBigText(text: "Sign Up ", fontWeight: FontWeight.bold),
               showmediumspace(),
-              mediumBigText(
+              mediumText(
                   text: "Create account to get things done",
                   fontWeight: FontWeight.w200),
+              showLargespace(),
+              showLargespace(),
               showLargespace(),
               Form(
                 key: formKey,
@@ -104,38 +107,56 @@ class SignUpScreen extends ConsumerWidget {
                       textInputType: TextInputType.text,
                       obscureText: true,
                     ),
+
+                    // create account button
                     showLargespace(),
                     isLoading
                         ? const CircularProgressIndicator()
                         : showOutlinedButton(
-                      function: () async {
-                        if (formKey.currentState!.validate()) {
-                          // Form is validated
-                          ref
-                              .read(isLoadingProvider.notifier)
-                              .state = true; // set loading to true
-                          try {
-                            // Attempt to create user account
-                            await ref
-                                .read(firebaseAuthProvider)
-                                .createUserWithEmailAndPassword(
-                              email: emailController.text,
-                              userName: usernameController.text,
-                              password: passwordController.text,
-                              context: context,
-                            );
-                          } catch (e) {
-                            // Handle error
-                            print('Error occurred: $e');
-                            // Optionally, show a snackbar or dialog to the user
-                          }
-                          ref
-                              .read(isLoadingProvider.notifier)
-                              .state = false; // set loading to false
-                        }
-                      },
-                      text: "Create Account",
-                    ),
+                            function: () async {
+                              if (formKey.currentState!.validate()) {
+                                // Form is validated
+                                ref.read(isLoadingProvider.notifier).state =
+                                    true; // set loading to true
+                                try {
+                                  // Attempt to create user account
+                                  await ref
+                                      .read(firebaseAuthProvider)
+                                      .createUserWithEmailAndPassword(
+                                        email: emailController.text,
+                                        userName: usernameController.text,
+                                        password: passwordController.text,
+                                        context: context,
+                                      );
+                                } catch (e) {
+                                  // Handle error
+                                  print('Error occurred: $e');
+                                  // Optionally, show a snackbar or dialog to the user
+                                }
+                                ref.read(isLoadingProvider.notifier).state =
+                                    false; // set loading to false
+                              }
+                            },
+                            text: "Create Account",
+                          ),
+                    showsmallspace(),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        mediumText(
+                            text: "Already have an Account ? ",
+                            fontWeight: FontWeight.normal),
+                        TextButton(
+                            onPressed: () {
+                              Navigator.of(context).push(MaterialPageRoute(
+                                  builder: (context) => const LoginScreen()));
+                            },
+                            child: const Text(
+                              "Login",
+                              style: TextStyle(color: Colors.green),
+                            ))
+                      ],
+                    )
                   ],
                 ),
               ),
