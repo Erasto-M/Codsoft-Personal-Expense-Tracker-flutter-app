@@ -1,25 +1,30 @@
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:personal_expense_tracker_codsoft/Home/homepage.dart';
-import 'package:personal_expense_tracker_codsoft/firebase_options.dart';
+import 'package:personal_expense_tracker_codsoft/Authentication/Providers/auth_providers.dart';
+import 'package:personal_expense_tracker_codsoft/Authentication/Screens/loading_screen.dart';
+import 'package:personal_expense_tracker_codsoft/Authentication/auth_checker.dart';
+import 'package:personal_expense_tracker_codsoft/Authentication/Screens/signup_screen.dart';
 
 // main function using riverpod provider scope  and
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
   runApp(const ProviderScope(child: MyApp()));
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends ConsumerWidget {
   const MyApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return const  MaterialApp(
-      home: HomePage(),
+  Widget build(BuildContext context, WidgetRef ref) {
+    final initializeFirebase = ref.watch(initializeFirebaseProvider);
+    return MaterialApp(
+      home: initializeFirebase.when(
+        data: (data) => const SignUpScreen(),
+        error: (e, stackTrace) {
+          return Text("$e".toString());
+        },
+        loading: () => const LoadingScreen(),
+      ),
       debugShowCheckedModeBanner: false,
     );
   }
