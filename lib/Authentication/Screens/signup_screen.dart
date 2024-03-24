@@ -4,20 +4,22 @@ import 'package:personal_expense_tracker_codsoft/Authentication/Providers/auth_p
 import 'package:personal_expense_tracker_codsoft/Widgets/reusable_widgets.dart';
 
 class SignUpScreen extends ConsumerWidget {
-  const SignUpScreen({super.key});
+  const SignUpScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final GlobalKey<FormState> formKey = GlobalKey<FormState>();
-    //controllers
+
+    // Controllers
     final emailController = ref.watch(emailControllerProvider);
     final usernameController = ref.watch(userNameControllerProvider);
     final passwordController = ref.watch(passWordControllerProvider);
     final confirmPasswordController =
-        ref.watch(confirmPasswordControllerProvider);
-    //formKey
-    //isLoading
+    ref.watch(confirmPasswordControllerProvider);
+
+    // isLoading
     final isLoading = ref.watch(isLoadingProvider);
+
     return SafeArea(
       child: Scaffold(
         body: Container(
@@ -26,103 +28,117 @@ class SignUpScreen extends ConsumerWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              showBigText(text: "Sign Up ", fontWeight: FontWeight.bold),
+              showBigText(
+                  text: "Sign Up ", fontWeight: FontWeight.bold),
               showmediumspace(),
               mediumBigText(
                   text: "Create account to get things done",
                   fontWeight: FontWeight.w200),
               showLargespace(),
               Form(
-                  key: formKey,
-                  child: Column(
-                    children: [
-                      showTextFormField(
-                          controller: usernameController,
-                          labelText: "UserName",
-                          validator: (value) {
-                            if (value.isEmpty) {
-                              return "UserName field cannot be empty";
-                            }
-                            return null;
-                          },
-                          prefixIcon: Icons.person_2_outlined,
-                          suffixIcon: null,
-                          textInputType: TextInputType.name,
-                          obscureText: false),
-                      showmediumspace(),
-                      showTextFormField(
-                          controller: emailController,
-                          labelText: "Email",
-                          validator: (value) {
-                            if (value.isEmpty) {
-                              return 'Email field cannot be empty';
-                            } else if (!value.contains('@gmail.com')) {
-                              return
-                                  "Please enter a valid email address";
-                            }
-                            return null;
-                          },
-                          prefixIcon: Icons.email,
-                          suffixIcon: null,
-                          textInputType: TextInputType.emailAddress,
-                          obscureText: false),
-                      showmediumspace(),
-                      showTextFormField(
-                          controller: passwordController,
-                          labelText: "Password",
-                          validator: (value) {
-                            if (value.isEmpty) {
-                              return
-                                  "password field cannot be empty";
-                            } else if (value.length < 6) {
-                              return "Too weak Password";
-                            }
-                            return null;
-                          },
-                          prefixIcon: Icons.lock,
-                          suffixIcon: Icons.visibility_off,
-                          textInputType: TextInputType.name,
-                          obscureText: true),
-                      showmediumspace(),
-                      showTextFormField(
-                        controller: confirmPasswordController,
-                        labelText: "Confirm Password",
-                        validator: (value) {
-                          if (value.isEmpty) {
-                            return "Please confirm your password";
-                          } else if (value != passwordController.text) {
-                            return "Passwords do not Match";
+                key: formKey,
+                child: Column(
+                  children: [
+                    showTextFormField(
+                      controller: usernameController,
+                      labelText: "UserName",
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return "UserName field cannot be empty";
+                        }
+                        return null;
+                      },
+                      prefixIcon: Icons.person_2_outlined,
+                      suffixIcon: null,
+                      textInputType: TextInputType.name,
+                      obscureText: false,
+                    ),
+                    showmediumspace(),
+                    showTextFormField(
+                      controller: emailController,
+                      labelText: "Email",
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Email field cannot be empty';
+                        } else if (!value.contains('@gmail.com')) {
+                          return "Please enter a valid email address";
+                        }
+                        return null;
+                      },
+                      prefixIcon: Icons.email,
+                      suffixIcon: null,
+                      textInputType: TextInputType.emailAddress,
+                      obscureText: false,
+                    ),
+                    showmediumspace(),
+                    showTextFormField(
+                      controller: passwordController,
+                      labelText: "Password",
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return "Password field cannot be empty";
+                        } else if (value.length < 6) {
+                          return "Password must be at least 6 characters long";
+                        }
+                        return null;
+                      },
+                      prefixIcon: Icons.lock,
+                      suffixIcon: Icons.visibility_off,
+                      textInputType: TextInputType.text,
+                      obscureText: true,
+                    ),
+                    showmediumspace(),
+                    showTextFormField(
+                      controller: confirmPasswordController,
+                      labelText: "Confirm Password",
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return "Confirm Password field cannot be empty";
+                        } else if (value != passwordController.text) {
+                          return "Passwords do not match";
+                        }
+                        return null;
+                      },
+                      prefixIcon: Icons.lock,
+                      suffixIcon: Icons.visibility_off,
+                      textInputType: TextInputType.text,
+                      obscureText: true,
+                    ),
+                    showLargespace(),
+                    isLoading
+                        ? const CircularProgressIndicator()
+                        : showOutlinedButton(
+                      function: () async {
+                        if (formKey.currentState!.validate()) {
+                          // Form is validated
+                          ref
+                              .read(isLoadingProvider.notifier)
+                              .state = true; // set loading to true
+                          try {
+                            // Attempt to create user account
+                            await ref
+                                .read(firebaseAuthProvider)
+                                .createUserWithEmailAndPassword(
+                              email: emailController.text,
+                              userName: usernameController.text,
+                              password: passwordController.text,
+                              context: context,
+                            );
+                          } catch (e) {
+                            // Handle error
+                            print('Error occurred: $e');
+                            // Optionally, show a snackbar or dialog to the user
                           }
-                          return null;
-                        },
-                        prefixIcon: Icons.lock,
-                        suffixIcon: Icons.visibility_off,
-                        textInputType: TextInputType.name,
-                        obscureText: true,
-                      ),
-                      showLargespace(),
-                      isLoading
-                          ? const CircularProgressIndicator()
-                          : showOutlinedButton(
-                              function: () async {
-                                if (formKey.currentState!.validate()) {
-                                  //set loading to true
-                                  ref.read(isLoadingProvider.notifier).state =
-                                      true;
-                                  await ref
-                                      .read(firebaseAuthProvider)
-                                      .createUserWithEmailAndPassword(
-                                          email: emailController.text,
-                                          userName: usernameController.text,
-                                          password: passwordController.text,
-                                          context: context);
-                                  ref.read(isLoadingProvider.notifier).state = false;
-                                }
-                                //validate form
-                              },
-                              text: "Create Account"),
-                    ],
-                  )),
+                          ref
+                              .read(isLoadingProvider.notifier)
+                              .state = false; // set loading to false
+                        }
+                      },
+                      text: "Create Account",
+                    ),
+                  ],
+                ),
+              ),
             ],
           ),
         ),
