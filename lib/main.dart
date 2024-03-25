@@ -21,7 +21,7 @@ class MyApp extends ConsumerWidget {
     final initializeFirebase = ref.watch(initializeFirebaseProvider);
     return MaterialApp(
       home: initializeFirebase.when(
-        data: (data) => const HomePage(),
+        data: (data) => const SignUpScreen(),
         error: (e, stackTrace) {
           return Text("$e".toString());
         },

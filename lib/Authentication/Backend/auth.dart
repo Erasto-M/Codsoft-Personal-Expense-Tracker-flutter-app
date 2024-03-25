@@ -7,10 +7,10 @@ import 'package:personal_expense_tracker_codsoft/Home/homepage.dart';
 
 class AuthUser {
   //Auth state changes to check whether user is logged in or not
-   Stream<User?> get authStateChanges =>
+  Stream<User?> get authStateChanges =>
       FirebaseAuth.instance.authStateChanges();
   //create user with email and password
-   Future<User?> createUserWithEmailAndPassword({
+  Future<User?> createUserWithEmailAndPassword({
     required String email,
     required String userName,
     required String password,
@@ -56,7 +56,7 @@ class AuthUser {
   }
 
   //Signin user with email and password
-   Future<void> signInUserWithEmailAndPassword({
+  Future<void> signInUserWithEmailAndPassword({
     required String email,
     required String password,
     required BuildContext context,
@@ -86,7 +86,7 @@ class AuthUser {
   }
 
   // Sign out User
-   Future<void> signOutUser() async {
+  Future<void> signOutUser() async {
     try {
       await FirebaseAuth.instance.signOut();
     } catch (e) {
