@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:personal_expense_tracker_codsoft/Widgets/colors.dart';
 
 TextFormField showTextFormField({
-  required TextEditingController controller,
+  required TextEditingController? controller,
   required String labelText,
-  required Function(String)? validator,
+  required Function(String?)? validator,
   required IconData prefixIcon,
   required IconData? suffixIcon,
   required TextInputType textInputType,
@@ -18,6 +18,7 @@ TextFormField showTextFormField({
     textCapitalization: TextCapitalization.sentences,
     textAlign: TextAlign.start,
     autocorrect: true,
+    validator: validator as String? Function(String?)?,
     obscureText: obscureText,
     decoration: InputDecoration(
       prefixIcon: Icon(prefixIcon),

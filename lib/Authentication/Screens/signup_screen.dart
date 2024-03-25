@@ -119,7 +119,7 @@ class SignUpScreen extends ConsumerWidget {
                                 ref.read(isLoadingProvider.notifier).state =
                                     true; // set loading to true
                                 try {
-                                  // Attempt to create user account
+                                  debugPrint("ready to send data ");
                                   await ref
                                       .read(firebaseAuthProvider)
                                       .createUserWithEmailAndPassword(
@@ -129,12 +129,10 @@ class SignUpScreen extends ConsumerWidget {
                                         context: context,
                                       );
                                 } catch (e) {
-                                  // Handle error
                                   print('Error occurred: $e');
-                                  // Optionally, show a snackbar or dialog to the user
                                 }
                                 ref.read(isLoadingProvider.notifier).state =
-                                    false; // set loading to false
+                                    false;
                               }
                             },
                             text: "Create Account",

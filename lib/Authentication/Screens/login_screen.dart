@@ -11,8 +11,9 @@ class LoginScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // Controllers
-    final emailController = ref.watch(emailControllerProvider);
-    final passwordController = ref.watch(passWordControllerProvider);
+    final signInemailController = ref.watch(signInEmailControllerProvider);
+    final signInpasswordController =
+        ref.watch(signInPasswordControllerProvider);
     // isLoading
     final isLoading = ref.watch(isLoadingProvider);
     GlobalKey<FormState> formKey = GlobalKey<FormState>();
@@ -37,7 +38,7 @@ class LoginScreen extends ConsumerWidget {
                   children: [
                     showmediumspace(),
                     showTextFormField(
-                      controller: emailController,
+                      controller: signInemailController,
                       labelText: "Email",
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -54,7 +55,7 @@ class LoginScreen extends ConsumerWidget {
                     ),
                     showmediumspace(),
                     showTextFormField(
-                      controller: passwordController,
+                      controller: signInpasswordController,
                       labelText: "Password",
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -85,8 +86,8 @@ class LoginScreen extends ConsumerWidget {
                                   await ref
                                       .read(firebaseAuthProvider)
                                       .signInUserWithEmailAndPassword(
-                                        email: emailController.text,
-                                        password: passwordController.text,
+                                        email: signInemailController.text,
+                                        password: signInpasswordController.text,
                                         context: context,
                                       );
                                 } catch (e) {
