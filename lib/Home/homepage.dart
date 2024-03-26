@@ -166,34 +166,17 @@ class HomePage extends ConsumerWidget {
             ],
           ),
         ),
-        floatingActionButton: GestureDetector(
-          onTap: () {
-            try {
-              const AddExpenseDialog();
-            } catch (e) {}
-          },
-          child: Container(
-            height: 70,
-            margin: const EdgeInsets.all(10),
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-                color: Colors.blue[800],
-                borderRadius: BorderRadius.circular(20)),
-            child: const Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
+        floatingActionButton: FloatingActionButton.extended(
+            onPressed: () {},
+            label: Column(
               children: [
-                Icon(
+                const Icon(
                   Icons.add,
                   color: Colors.white,
                 ),
-                Text(
-                  "Add Expense",
-                  style: TextStyle(color: Colors.white),
-                ),
+                mediumText(text: "Add Expense", fontWeight: FontWeight.bold),
               ],
-            ),
-          ),
-        ),
+            )),
       ),
     );
   }
