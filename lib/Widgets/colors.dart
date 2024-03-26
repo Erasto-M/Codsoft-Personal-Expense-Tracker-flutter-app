@@ -9,5 +9,6 @@ Color smallTextcolor = const Color.fromARGB(255, 100, 98, 98);
 
 // Background color
 Colors customBackgroundColor = Colors.grey[200] as Colors;
+Color? kcBackgroundColor = Colors.blue[800] ;
 // Outlined button colors.
 Color outlinedButtonColors = Colors.green;
