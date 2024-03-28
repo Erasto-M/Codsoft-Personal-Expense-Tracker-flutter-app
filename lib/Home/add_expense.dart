@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:personal_expense_tracker_codsoft/Home/Providers/homepage_providers.dart';
+import 'package:personal_expense_tracker_codsoft/Models/add_expense_Model.dart';
 import 'package:personal_expense_tracker_codsoft/Widgets/colors.dart';
 import 'package:personal_expense_tracker_codsoft/Widgets/reusable_widgets.dart';
 // controllers
@@ -56,7 +57,7 @@ showAlertDialog(BuildContext context) {
                           obscureText: false),
                       showmediumspace(),
                       showTextFormField(
-                          controller: expenseAmountController,
+                          controller: expenseCategoryController,
                           labelText: "Category",
                           validator: (value) {
                             if (value!.isEmpty) {
@@ -77,7 +78,11 @@ showAlertDialog(BuildContext context) {
                                 ref.read(addExpenseButtonTapped.notifier).state = true;
                                 if(_expenseFormKey.currentState!.validate()){
                                   ref.read( isExpenseLoadingProvider.notifier).state = true;
-
+                                  AddExpenseModel expenseModel =
+                                  AddExpenseModel(amount: expenseAmountController.text,
+                                      category: expenseCategoryController.text, title: expenseTitleController.text);
+                                  ref.read(firebaseServicesProvider).createExpense(expenseModel);
+                                  Navigator.pop(context);
                                 }
                               },
                               child: Container(
