@@ -4,20 +4,30 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:personal_expense_tracker_codsoft/Home/Backend/firebase_service.dart';
 import 'package:personal_expense_tracker_codsoft/Home/add_expense.dart';
 import 'package:personal_expense_tracker_codsoft/Models/add_expense_Model.dart';
- final showAlertDialogProvider = StateProvider<bool>((ref) => false);
 
- // add expense Providers
- final expenseTitleProvider = StateProvider<TextEditingController>((ref) => TextEditingController());
- final expenseAmountProvider = StateProvider<TextEditingController>((ref) => TextEditingController());
- final expenseCategoryProvider = StateProvider<TextEditingController>((ref) => TextEditingController());
- // is loading providers
- final isExpenseLoadingProvider = StateProvider<bool>((ref) => false);
+final showAlertDialogProvider = StateProvider<bool>((ref) => false);
 
- // button clicked provider
- final addExpenseButtonTapped = StateProvider<bool>((ref) => false);
+// add expense Providers
+final expenseTitleProvider =
+    StateProvider<TextEditingController>((ref) => TextEditingController());
+final expenseAmountProvider =
+    StateProvider<TextEditingController>((ref) => TextEditingController());
+final expenseCategoryProvider =
+    StateProvider<TextEditingController>((ref) => TextEditingController());
+// is loading providers
+final isExpenseLoadingProvider = StateProvider<bool>((ref) => false);
 
- // provider for sending Firebase services
- final firebaseServicesProvider = Provider<FirebaseServices>((ref){
+// button clicked provider
+final addExpenseButtonTapped = StateProvider<bool>((ref) => false);
+
+// provider for sending Firebase services
+final firebaseServicesProvider = Provider<FirebaseServices>((ref) {
   return FirebaseServices();
- });
-  // create user Provider
+});
+// get data from firebase provider
+final getExpensesFromFirebaseProvider = FutureProvider<List<AddExpenseModel>>((ref) async {
+  final firebaseServices = ref.watch(firebaseServicesProvider);
+  return await firebaseServices.fetchDailyExpenses();
+});
+// selected category provider
+final selectedCategoryProvider = StateProvider((ref) => null);

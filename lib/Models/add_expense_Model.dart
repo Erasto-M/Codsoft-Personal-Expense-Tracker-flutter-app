@@ -30,7 +30,7 @@ class AddExpenseModel {
       category: map['Category'] as String,
       title: map['Title'] as String,
       date: map['date'],
-      id: map['id'] as String,
+      id: map['Id'] as String,
       userId: map['Uid'] as String
     );
   }

@@ -1,8 +1,12 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:personal_expense_tracker_codsoft/Authentication/Screens/loading_screen.dart';
+import 'package:personal_expense_tracker_codsoft/Home/Backend/firebase_service.dart';
 import 'package:personal_expense_tracker_codsoft/Home/Providers/homepage_providers.dart';
+import 'package:personal_expense_tracker_codsoft/Models/add_expense_Model.dart';
 import 'package:personal_expense_tracker_codsoft/Widgets/colors.dart';
 import 'package:personal_expense_tracker_codsoft/Widgets/reusable_widgets.dart';
 
@@ -67,8 +71,9 @@ class HomePage extends ConsumerWidget {
                       borderRadius: BorderRadius.circular(20),
                       color: kcBackgroundColor),
                   child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Column(
+                       const Column(
                         children: [
                           Column(
                             children: [
@@ -76,7 +81,7 @@ class HomePage extends ConsumerWidget {
                                 "Total Income",
                                 style: TextStyle(
                                   color: Colors.white,
-                                  fontSize: 20,
+                                  fontSize: 15,
                                   fontWeight: FontWeight.normal,
                                 ),
                               ),
@@ -84,7 +89,7 @@ class HomePage extends ConsumerWidget {
                                 "& 50,000",
                                 style: TextStyle(
                                   color: Colors.white,
-                                  fontSize: 14,
+                                  fontSize: 10,
                                 ),
                               ),
                             ],
@@ -96,7 +101,7 @@ class HomePage extends ConsumerWidget {
                                 "Total Savings",
                                 style: TextStyle(
                                   color: Colors.white,
-                                  fontSize: 20,
+                                  fontSize: 15,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
@@ -104,7 +109,7 @@ class HomePage extends ConsumerWidget {
                                 "& 20,000",
                                 style: TextStyle(
                                   color: Colors.white,
-                                  fontSize: 14,
+                                  fontSize: 10,
                                 ),
                               ),
                             ],
@@ -120,7 +125,7 @@ class HomePage extends ConsumerWidget {
                                 "Monthly Budget",
                                 style: TextStyle(
                                   color: Colors.white,
-                                  fontSize: 20,
+                                  fontSize: 15,
                                   fontWeight: FontWeight.normal,
                                 ),
                               ),
@@ -128,7 +133,7 @@ class HomePage extends ConsumerWidget {
                                 "& 40,000",
                                 style: TextStyle(
                                   color: Colors.white,
-                                  fontSize: 14,
+                                  fontSize: 10,
                                 ),
                               ),
                             ],
@@ -140,7 +145,7 @@ class HomePage extends ConsumerWidget {
                                 "Total Expense",
                                 style: TextStyle(
                                   color: Colors.white,
-                                  fontSize: 20,
+                                  fontSize: 15,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
@@ -148,7 +153,7 @@ class HomePage extends ConsumerWidget {
                                 "& 30,000",
                                 style: TextStyle(
                                   color: Colors.white,
-                                  fontSize: 14,
+                                  fontSize: 10,
                                 ),
                               ),
                             ],
@@ -162,8 +167,8 @@ class HomePage extends ConsumerWidget {
                           color: Colors.grey[200],
                           borderRadius: BorderRadius.circular(15),
                         ),
-                        margin: const EdgeInsets.all(5),
-                        padding: const EdgeInsets.symmetric(vertical: 5,horizontal: 15),
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 5, horizontal: 5),
                         child: Row(
                           children: [
                             mediumText(
@@ -182,7 +187,9 @@ class HomePage extends ConsumerWidget {
                 ),
                 showmediumspace(),
                 // categories listview
-                showBigText(text: "Categories", fontWeight: FontWeight.bold)
+                showBigText(text: "Categories", fontWeight: FontWeight.bold),
+                showmediumspace(),
+                const Expanded(child: FetchedExpenses()),
                 // Daily Expanses List
               ],
             ),
@@ -214,5 +221,39 @@ class HomePage extends ConsumerWidget {
             },
           )),
     );
+  }
+}
+
+class FetchedExpenses extends StatelessWidget {
+  const FetchedExpenses({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer(builder: (context, ref, child) {
+      final AsyncValue<List<AddExpenseModel>> dailyExpenses =
+          ref.watch(getExpensesFromFirebaseProvider);
+      return dailyExpenses.when(
+          data: (expenses) {
+            if (expenses == null || expenses.isEmpty) {
+              return const Text("No expenses Found");
+            } else {
+              return ListView.builder(
+                  itemCount: expenses.length,
+                  shrinkWrap: true,
+                  itemBuilder: (context, index) {
+                    final expense = expenses[index];
+                    return ListTile(
+                      title: Text(expense.title),
+                      subtitle: Text(expense.date as String),
+                      trailing:Text(expense.amount ),
+                    );
+                  });
+            }
+          },
+          error: (err, stacktrace) {
+            return Text('e'.toString());
+          },
+          loading: () => const LoadingScreen());
+    });
   }
 }

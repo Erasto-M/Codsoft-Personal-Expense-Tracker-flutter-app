@@ -10,6 +10,8 @@ TextFormField showTextFormField({
   required IconData? suffixIcon,
   required TextInputType textInputType,
   required bool obscureText,
+  Function()? onTap,
+  bool? readonly,
 }) {
   return TextFormField(
     keyboardType: textInputType,
@@ -20,9 +22,12 @@ TextFormField showTextFormField({
     autocorrect: true,
     validator: validator as String? Function(String?)?,
     obscureText: obscureText,
+    onTap:onTap ?? (){},
+    readOnly: readonly ?? false,
     decoration: InputDecoration(
       prefixIcon: Icon(prefixIcon),
-      suffixIcon: Icon(suffixIcon),
+      suffixIcon: GestureDetector(
+          child: Icon(suffixIcon)),
       labelText: labelText,
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
