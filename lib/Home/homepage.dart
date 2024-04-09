@@ -1,12 +1,10 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import 'package:personal_expense_tracker_codsoft/Authentication/Screens/loading_screen.dart';
-import 'package:personal_expense_tracker_codsoft/Home/Backend/firebase_service.dart';
 import 'package:personal_expense_tracker_codsoft/Home/Providers/homepage_providers.dart';
-import 'package:personal_expense_tracker_codsoft/Models/add_expense_Model.dart';
 import 'package:personal_expense_tracker_codsoft/Widgets/colors.dart';
 import 'package:personal_expense_tracker_codsoft/Widgets/reusable_widgets.dart';
 
@@ -14,9 +12,9 @@ import 'add_expense.dart';
 
 class HomePage extends ConsumerWidget {
   const HomePage({super.key});
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final getExpenseFromFirebase = ref.watch(getExpenseFromFirebaseProvider);
     return SafeArea(
       child: Scaffold(
           backgroundColor: Colors.grey[200],
@@ -73,7 +71,7 @@ class HomePage extends ConsumerWidget {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                       const Column(
+                      const Column(
                         children: [
                           Column(
                             children: [
@@ -189,7 +187,102 @@ class HomePage extends ConsumerWidget {
                 // categories listview
                 showBigText(text: "Categories", fontWeight: FontWeight.bold),
                 showmediumspace(),
-                const Expanded(child: FetchedExpenses()),
+                Flexible(
+                  flex: 1,
+                  child: Container(
+                    child: getExpenseFromFirebase.when(data: (data) {
+                      return ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: data.length,
+                          itemBuilder: (context, Index) {
+                            final expenseCategory = data[Index];
+                            return Container(
+                              margin: const EdgeInsets.all(10),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 20, vertical: 10),
+                              width: MediaQuery.of(context).size.width / 2.5,
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(10),
+                                boxShadow: const [
+                                  BoxShadow(
+                                    color: Colors.grey,
+                                    blurRadius: 5,
+                                    offset: Offset(0, 3),
+                                  )
+                                ],
+                              ),
+                              child: Text(expenseCategory.category),
+                            );
+                          });
+                    }, error: (err, _) {
+                      return Text(err.toString());
+                    }, loading: () {
+                      return const LoadingScreen();
+                    }),
+                  ),
+                ),
+                showmediumspace(),
+                showBigText(text: "Today", fontWeight: FontWeight.bold),
+                showmediumspace(),
+                Expanded(
+                    child: getExpenseFromFirebase.when(data: (data) {
+                  if (data.isNotEmpty) {
+                    return ListView.builder(
+                        itemCount: data.length,
+                        itemBuilder: (context, index) {
+                          final expense = data[index];
+                          String dateFormat =
+                              DateFormat('dd-MM-yyyy').format(expense.date);
+                          double amount =
+                              double.tryParse(expense.amount) ?? 0.0;
+                          return Container(
+                            margin: const EdgeInsets.only(bottom: 10),
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(10),
+                                boxShadow: const [
+                                  BoxShadow(
+                                    color: Colors.grey,
+                                    blurRadius: 5,
+                                    offset: Offset(0, 3),
+                                  )
+                                ]),
+                            child: ListTile(
+                              title: Row(
+                                children: [
+                                  Text(
+                                    expense.title,
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                  const Spacer(),
+                                  Text(NumberFormat.currency(
+                                          symbol: '\$', decimalDigits: 0)
+                                      .format(amount))
+                                ],
+                              ),
+                              subtitle: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    expense.category,
+                                  ),
+                                  Text(dateFormat.toString())
+                                ],
+                              ),
+                            ),
+                          );
+                        });
+                  } else {
+                    return const Center(child: Text("No data Found"));
+                  }
+                }, error: (err, _) {
+                  return Center(child: Text(err.toString()));
+                }, loading: () {
+                  return const LoadingScreen();
+                }))
                 // Daily Expanses List
               ],
             ),
@@ -221,39 +314,5 @@ class HomePage extends ConsumerWidget {
             },
           )),
     );
-  }
-}
-
-class FetchedExpenses extends StatelessWidget {
-  const FetchedExpenses({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Consumer(builder: (context, ref, child) {
-      final AsyncValue<List<AddExpenseModel>> dailyExpenses =
-          ref.watch(getExpensesFromFirebaseProvider);
-      return dailyExpenses.when(
-          data: (expenses) {
-            if (expenses == null || expenses.isEmpty) {
-              return const Text("No expenses Found");
-            } else {
-              return ListView.builder(
-                  itemCount: expenses.length,
-                  shrinkWrap: true,
-                  itemBuilder: (context, index) {
-                    final expense = expenses[index];
-                    return ListTile(
-                      title: Text(expense.title),
-                      subtitle: Text(expense.date as String),
-                      trailing:Text(expense.amount ),
-                    );
-                  });
-            }
-          },
-          error: (err, stacktrace) {
-            return Text('e'.toString());
-          },
-          loading: () => const LoadingScreen());
-    });
   }
 }

@@ -12,8 +12,15 @@ final expenseTitleProvider =
     StateProvider<TextEditingController>((ref) => TextEditingController());
 final expenseAmountProvider =
     StateProvider<TextEditingController>((ref) => TextEditingController());
-final expenseCategoryProvider =
-    StateProvider<TextEditingController>((ref) => TextEditingController());
+final expenseCategoryProvider = StateProvider((ref) => [
+      'Shopping & Foods',
+      'Utilities',
+      'Transport',
+      'Health and Fitness',
+      'Personal Care',
+      'Debts And Loans',
+      'Entertainment',
+    ]);
 // is loading providers
 final isExpenseLoadingProvider = StateProvider<bool>((ref) => false);
 
@@ -21,13 +28,10 @@ final isExpenseLoadingProvider = StateProvider<bool>((ref) => false);
 final addExpenseButtonTapped = StateProvider<bool>((ref) => false);
 
 // provider for sending Firebase services
-final firebaseServicesProvider = Provider<FirebaseServices>((ref) {
-  return FirebaseServices();
-});
 // get data from firebase provider
-final getExpensesFromFirebaseProvider = FutureProvider<List<AddExpenseModel>>((ref) async {
+final getExpenseFromFirebaseProvider = StreamProvider((ref) {
   final firebaseServices = ref.watch(firebaseServicesProvider);
-  return await firebaseServices.fetchDailyExpenses();
+  return firebaseServices.fetchDailyExpenses() as Stream;
 });
 // selected category provider
 final selectedCategoryProvider = StateProvider((ref) => null);

@@ -2,12 +2,14 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:personal_expense_tracker_codsoft/Home/Backend/firebase_service.dart';
 import 'package:personal_expense_tracker_codsoft/Home/Providers/homepage_providers.dart';
 import 'package:personal_expense_tracker_codsoft/Models/add_expense_Model.dart';
 import 'package:personal_expense_tracker_codsoft/Widgets/colors.dart';
 import 'package:personal_expense_tracker_codsoft/Widgets/reusable_widgets.dart';
 
-StateProvider selectedCategoryProvider = StateProvider((ref) => 'Shopping & Foods');
+StateProvider selectedCategoryProvider =
+    StateProvider((ref) => 'Shopping & Foods');
 
 showAlertDialog(BuildContext context) {
   showDialog(
@@ -56,7 +58,6 @@ showAlertDialog(BuildContext context) {
                               return "Please Enter the Amount of the Expense";
                             }
                           },
-
                           onTap: null,
                           prefixIcon: Icons.money_sharp,
                           suffixIcon: null,
@@ -66,7 +67,7 @@ showAlertDialog(BuildContext context) {
                       showmediumspace(),
                       Container(
                         padding: const EdgeInsets.all(3),
-                        decoration:  BoxDecoration(
+                        decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(15),
                             color: Colors.white),
                         child: Row(
@@ -78,7 +79,9 @@ showAlertDialog(BuildContext context) {
                                 fontSize: 14,
                               ),
                             ),
-                            const SizedBox(width: 10,),
+                            const SizedBox(
+                              width: 10,
+                            ),
                             DropdownButton(
                               value: selectedCategory,
                               icon: const Icon(Icons.arrow_drop_down),
@@ -93,7 +96,6 @@ showAlertDialog(BuildContext context) {
                                     .read(selectedCategoryProvider.notifier)
                                     .state = newValue ?? '';
                               },
-
                             ),
                           ],
                         ),
@@ -101,58 +103,58 @@ showAlertDialog(BuildContext context) {
                       showmediumspace(),
                       isLoading
                           ? CircularProgressIndicator(
-                        color: kcBackgroundColor,
-                      )
-                          : GestureDetector(
-                        onTap: () {
-                          ref
-                              .read(addExpenseButtonTapped.notifier)
-                              .state = true;
-                          if (expenseFormKey.currentState!.validate()) {
-                            ref
-                                .read(isExpenseLoadingProvider.notifier)
-                                .state = true;
-                            AddExpenseModel expenseModel =
-                            AddExpenseModel(
-                                amount: expenseAmountController.text,
-                                category: selectedCategory,
-                                title: expenseTitleController.text);
-                            ref
-                                .read(firebaseServicesProvider)
-                                .createExpense(expenseModel);
-                            ref
-                                .read(expenseTitleProvider.notifier)
-                                .state
-                                .clear();
-                            ref
-                                .read(expenseAmountProvider.notifier)
-                                .state
-                                .clear();
-
-                            ref
-                                .read(isExpenseLoadingProvider.notifier)
-                                .state = false;
-                            Navigator.pop(context);
-                          }
-                        },
-                        child: Container(
-                          height: 50,
-                          width: MediaQuery.of(context).size.width / 2,
-                          decoration: BoxDecoration(
                               color: kcBackgroundColor,
-                              borderRadius: BorderRadius.circular(20)),
-                          child: const Center(
-                            child: Text(
-                              "Add",
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 15,
+                            )
+                          : GestureDetector(
+                              onTap: () {
+                                ref
+                                    .read(addExpenseButtonTapped.notifier)
+                                    .state = true;
+                                if (expenseFormKey.currentState!.validate()) {
+                                  ref
+                                      .read(isExpenseLoadingProvider.notifier)
+                                      .state = true;
+                                  AddExpenseModel expenseModel =
+                                      AddExpenseModel(
+                                          title: expenseTitleController.text,
+                                          amount: expenseAmountController.text,
+                                          category: selectedCategory);
+                                  ref
+                                      .read(firebaseServicesProvider)
+                                      .createExpense(expenseModel);
+                                  ref
+                                      .read(expenseTitleProvider.notifier)
+                                      .state
+                                      .clear();
+                                  ref
+                                      .read(expenseAmountProvider.notifier)
+                                      .state
+                                      .clear();
+
+                                  ref
+                                      .read(isExpenseLoadingProvider.notifier)
+                                      .state = false;
+                                  Navigator.pop(context);
+                                }
+                              },
+                              child: Container(
+                                height: 50,
+                                width: MediaQuery.of(context).size.width / 2,
+                                decoration: BoxDecoration(
+                                    color: kcBackgroundColor,
+                                    borderRadius: BorderRadius.circular(20)),
+                                child: const Center(
+                                  child: Text(
+                                    "Add",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 15,
+                                    ),
+                                  ),
+                                ),
                               ),
-                            ),
-                          ),
-                        ),
-                      )
+                            )
                     ],
                   ),
                 )),
