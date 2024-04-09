@@ -1,22 +1,14 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/painting.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:personal_expense_tracker_codsoft/Home/Providers/homepage_providers.dart';
 import 'package:personal_expense_tracker_codsoft/Models/add_expense_Model.dart';
 import 'package:personal_expense_tracker_codsoft/Widgets/colors.dart';
 import 'package:personal_expense_tracker_codsoft/Widgets/reusable_widgets.dart';
-// controllers
-final List<String> categoriesList = [
-  'Shopping & Foods\n',
-      'Utilities\n',
-      'Transport\n',
-      'Health and Fitness\n',
-      'Personal Care\n',
-      'Debts And Loans\n',
-      'Entertainment\n',
-];
- String? selectedCategory;
+
+StateProvider selectedCategoryProvider = StateProvider((ref) => 'Shopping & Foods');
+
 showAlertDialog(BuildContext context) {
   showDialog(
       context: context,
@@ -24,9 +16,10 @@ showAlertDialog(BuildContext context) {
         return Consumer(builder: (context, ref, child) {
           final expenseTitleController = ref.watch(expenseTitleProvider);
           final expenseAmountController = ref.watch(expenseAmountProvider);
-          final expenseCategoryController = ref.watch(expenseCategoryProvider);
+          final categories = ref.watch(expenseCategoryProvider);
           final isLoading = ref.watch(isExpenseLoadingProvider);
           final onButtonClick = ref.watch(addExpenseButtonTapped);
+          final selectedCategory = ref.watch(selectedCategoryProvider);
           GlobalKey<FormState> expenseFormKey = GlobalKey<FormState>();
           return AlertDialog(
             elevation: 5,
@@ -35,7 +28,7 @@ showAlertDialog(BuildContext context) {
                 child: mediumText(
                     text: "Add Expense", fontWeight: FontWeight.bold)),
             content: Container(
-                height: onButtonClick? 380: 290,
+                height: onButtonClick ? 380 : 290,
                 child: Form(
                   key: expenseFormKey,
                   child: Column(
@@ -63,6 +56,7 @@ showAlertDialog(BuildContext context) {
                               return "Please Enter the Amount of the Expense";
                             }
                           },
+
                           onTap: null,
                           prefixIcon: Icons.money_sharp,
                           suffixIcon: null,
@@ -70,61 +64,95 @@ showAlertDialog(BuildContext context) {
                           textInputType: TextInputType.text,
                           obscureText: false),
                       showmediumspace(),
-                      showTextFormField(
-                          readonly: true,
-                          controller: expenseCategoryController,
-                          labelText: "Category",
-                          onTap: (){
-                            _showSelectedCategory(context);
-                          },
-                          validator: (value) {
-                            if (value!.isEmpty) {
-                              return "Please select category";
-                            }
-                          },
-                          prefixIcon: Icons.category,
-                          suffixIcon: Icons.arrow_drop_down,
-                          textInputType: TextInputType.text,
-                          obscureText: false),
+                      Container(
+                        padding: const EdgeInsets.all(3),
+                        decoration:  BoxDecoration(
+                            borderRadius: BorderRadius.circular(15),
+                            color: Colors.white),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text(
+                              "Select Category",
+                              style: TextStyle(
+                                fontSize: 14,
+                              ),
+                            ),
+                            const SizedBox(width: 10,),
+                            DropdownButton(
+                              value: selectedCategory,
+                              icon: const Icon(Icons.arrow_drop_down),
+                              items: categories.map((categoryValue) {
+                                return DropdownMenuItem(
+                                  value: categoryValue,
+                                  child: Text(categoryValue),
+                                );
+                              }).toList(),
+                              onChanged: (newValue) {
+                                ref
+                                    .read(selectedCategoryProvider.notifier)
+                                    .state = newValue ?? '';
+                              },
+
+                            ),
+                          ],
+                        ),
+                      ),
                       showmediumspace(),
                       isLoading
                           ? CircularProgressIndicator(
-                              color: kcBackgroundColor,
-                            )
+                        color: kcBackgroundColor,
+                      )
                           : GestureDetector(
-                              onTap: () {
-                                ref.read(addExpenseButtonTapped.notifier).state = true;
-                                if(expenseFormKey.currentState!.validate()){
-                                  ref.read( isExpenseLoadingProvider.notifier).state = true;
-                                  AddExpenseModel expenseModel =
-                                  AddExpenseModel(amount: expenseAmountController.text,
-                                      category: expenseCategoryController.text, title: expenseTitleController.text);
-                                  ref.read(firebaseServicesProvider).createExpense(expenseModel);
-                                  ref.read(expenseTitleProvider.notifier).state.clear();
-                                  ref.read(expenseAmountProvider.notifier).state.clear();
-                                  ref.read(expenseCategoryProvider.notifier).state.clear();
-                                  ref.read(isExpenseLoadingProvider.notifier).state = false;
-                                  Navigator.pop(context);
-                                }
-                              },
-                              child: Container(
-                                height: 50,
-                                width: MediaQuery.of(context).size.width/2,
-                                decoration: BoxDecoration(
-                                    color: kcBackgroundColor,
-                                    borderRadius: BorderRadius.circular(20)),
-                                child: const Center(
-                                  child:  Text(
-                                    "Add",
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 15,
-                                    ),
-                                  ),
-                                ),
+                        onTap: () {
+                          ref
+                              .read(addExpenseButtonTapped.notifier)
+                              .state = true;
+                          if (expenseFormKey.currentState!.validate()) {
+                            ref
+                                .read(isExpenseLoadingProvider.notifier)
+                                .state = true;
+                            AddExpenseModel expenseModel =
+                            AddExpenseModel(
+                                amount: expenseAmountController.text,
+                                category: selectedCategory,
+                                title: expenseTitleController.text);
+                            ref
+                                .read(firebaseServicesProvider)
+                                .createExpense(expenseModel);
+                            ref
+                                .read(expenseTitleProvider.notifier)
+                                .state
+                                .clear();
+                            ref
+                                .read(expenseAmountProvider.notifier)
+                                .state
+                                .clear();
+
+                            ref
+                                .read(isExpenseLoadingProvider.notifier)
+                                .state = false;
+                            Navigator.pop(context);
+                          }
+                        },
+                        child: Container(
+                          height: 50,
+                          width: MediaQuery.of(context).size.width / 2,
+                          decoration: BoxDecoration(
+                              color: kcBackgroundColor,
+                              borderRadius: BorderRadius.circular(20)),
+                          child: const Center(
+                            child: Text(
+                              "Add",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 15,
                               ),
-                            )
+                            ),
+                          ),
+                        ),
+                      )
                     ],
                   ),
                 )),
@@ -132,32 +160,3 @@ showAlertDialog(BuildContext context) {
         });
       });
 }
-  Widget? _showSelectedCategory(BuildContext context){
-  showDialog(context: context, builder: (context){
-    return AlertDialog(
-      title: mediumText(text: "select category", fontWeight: FontWeight.bold),
-      content:Container(
-        width: double.minPositive,
-        child: ListView.builder(
-          itemCount: categoriesList.length,
-            shrinkWrap: true,
-            itemBuilder: (ref, index){
-            return Consumer(builder: (context, ref, child){
-              final isSelected = selectedCategory == categoriesList[index];
-              return ListTile(
-                title: Text(categoriesList[index],
-                  style: isSelected ?const  TextStyle(color: Colors.blue): const TextStyle(color: Colors.black),
-                ),
-                onTap: (){
-                  selectedCategory = categoriesList[index];
-                  ref.read(expenseCategoryProvider.notifier).state = TextEditingController(text: selectedCategory);
-                  Navigator.pop(context);
-                },
-              );
-            });
-        }),
-      ) ,
-    );
-  });
-  return null;
-  }
