@@ -43,8 +43,6 @@ showAlertDialog(BuildContext context) {
                               return "Title Cannot be empty";
                             }
                           },
-                          onTap: null,
-                          readonly: false,
                           prefixIcon: Icons.title,
                           suffixIcon: null,
                           textInputType: TextInputType.text,
@@ -58,10 +56,8 @@ showAlertDialog(BuildContext context) {
                               return "Please Enter the Amount of the Expense";
                             }
                           },
-                          onTap: null,
                           prefixIcon: Icons.money_sharp,
                           suffixIcon: null,
-                          readonly: false,
                           textInputType: TextInputType.text,
                           obscureText: false),
                       showmediumspace(),

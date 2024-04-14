@@ -10,7 +10,6 @@ TextFormField showTextFormField({
   required IconData? suffixIcon,
   required TextInputType textInputType,
   required bool obscureText,
-  Function()? onTap,
   bool? readonly,
 }) {
   return TextFormField(
@@ -22,12 +21,10 @@ TextFormField showTextFormField({
     autocorrect: true,
     validator: validator as String? Function(String?)?,
     obscureText: obscureText,
-    onTap:onTap ?? (){},
     readOnly: readonly ?? false,
     decoration: InputDecoration(
       prefixIcon: Icon(prefixIcon),
-      suffixIcon: GestureDetector(
-          child: Icon(suffixIcon)),
+      suffixIcon: GestureDetector(child: Icon(suffixIcon)),
       labelText: labelText,
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
@@ -127,5 +124,127 @@ Widget showmediumspace() {
 Widget showsmallspace() {
   return const SizedBox(
     height: 20,
+  );
+}
+
+showExpenseConatiner(BuildContext context) {
+  return Container(
+    padding: const EdgeInsets.all(10),
+    height: 110,
+    width: MediaQuery.of(context).size.width,
+    decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20), color: kcBackgroundColor),
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        const Column(
+          children: [
+            Column(
+              children: [
+                Text(
+                  "Total Income",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 15,
+                    fontWeight: FontWeight.normal,
+                  ),
+                ),
+                Text(
+                  "& 50,000",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 10,
+                  ),
+                ),
+              ],
+            ),
+            Spacer(),
+            Column(
+              children: [
+                Text(
+                  "Total Savings",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text(
+                  "& 20,000",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 10,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+        const Spacer(),
+        const Column(
+          children: [
+            Column(
+              children: [
+                Text(
+                  "Monthly Budget",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 15,
+                    fontWeight: FontWeight.normal,
+                  ),
+                ),
+                Text(
+                  "& 40,000",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 10,
+                  ),
+                ),
+              ],
+            ),
+            Spacer(),
+            Column(
+              children: [
+                Text(
+                  "Total Expense",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text(
+                  "& 30,000",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 10,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+        const Spacer(),
+        Center(
+            child: Container(
+          decoration: BoxDecoration(
+            color: Colors.grey[200],
+            borderRadius: BorderRadius.circular(15),
+          ),
+          padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 5),
+          child: Row(
+            children: [
+              mediumText(text: "FEB", fontWeight: FontWeight.w100),
+              const SizedBox(
+                width: 5,
+              ),
+              const Icon(
+                Icons.arrow_drop_down,
+              )
+            ],
+          ),
+        ))
+      ],
+    ),
   );
 }

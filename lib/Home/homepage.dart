@@ -5,22 +5,31 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:personal_expense_tracker_codsoft/Authentication/Screens/loading_screen.dart';
 import 'package:personal_expense_tracker_codsoft/Home/Providers/homepage_providers.dart';
+import 'package:personal_expense_tracker_codsoft/Home/add_expense_screen.dart';
+import 'package:personal_expense_tracker_codsoft/Models/add_expense_Model.dart';
 import 'package:personal_expense_tracker_codsoft/Widgets/colors.dart';
 import 'package:personal_expense_tracker_codsoft/Widgets/reusable_widgets.dart';
 
-import 'add_expense.dart';
+// selected Category
+final selectedCategoryProvider = StateProvider((ref) {
+  return 'Shopping & Foods';
+});
 
 class HomePage extends ConsumerWidget {
-  const HomePage({super.key});
+  const HomePage({
+    super.key,
+  });
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final getExpenseFromFirebase = ref.watch(getExpenseFromFirebaseProvider);
+    final selectedCategory = ref.watch(selectedCategoryProvider);
     return SafeArea(
       child: Scaffold(
           backgroundColor: Colors.grey[200],
           body: Container(
             padding:
-                const EdgeInsets.only(top: 30, left: 15, right: 15, bottom: 10),
+                const EdgeInsets.only(top: 15, left: 15, right: 15, bottom: 10),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -61,167 +70,61 @@ class HomePage extends ConsumerWidget {
                 ),
                 // Momthly budget container
                 showmediumspace(),
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  height: 150,
-                  width: MediaQuery.of(context).size.width,
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(20),
-                      color: kcBackgroundColor),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Column(
-                        children: [
-                          Column(
-                            children: [
-                              Text(
-                                "Total Income",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.normal,
-                                ),
-                              ),
-                              Text(
-                                "& 50,000",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 10,
-                                ),
-                              ),
-                            ],
-                          ),
-                          Spacer(),
-                          Column(
-                            children: [
-                              Text(
-                                "Total Savings",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              Text(
-                                "& 20,000",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 10,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                      const Spacer(),
-                      const Column(
-                        children: [
-                          Column(
-                            children: [
-                              Text(
-                                "Monthly Budget",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.normal,
-                                ),
-                              ),
-                              Text(
-                                "& 40,000",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 10,
-                                ),
-                              ),
-                            ],
-                          ),
-                          Spacer(),
-                          Column(
-                            children: [
-                              Text(
-                                "Total Expense",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              Text(
-                                "& 30,000",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 10,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                      const Spacer(),
-                      Center(
-                          child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.grey[200],
-                          borderRadius: BorderRadius.circular(15),
-                        ),
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 5, horizontal: 5),
-                        child: Row(
-                          children: [
-                            mediumText(
-                                text: "FEB", fontWeight: FontWeight.w100),
-                            const SizedBox(
-                              width: 5,
-                            ),
-                            const Icon(
-                              Icons.arrow_drop_down,
-                            )
-                          ],
-                        ),
-                      ))
-                    ],
-                  ),
-                ),
+                showExpenseConatiner(context),
                 showmediumspace(),
                 // categories listview
                 showBigText(text: "Categories", fontWeight: FontWeight.bold),
-                showmediumspace(),
-                Flexible(
-                  flex: 1,
-                  child: Container(
-                    child: getExpenseFromFirebase.when(data: (data) {
-                      return ListView.builder(
-                          scrollDirection: Axis.horizontal,
-                          itemCount: data.length,
-                          itemBuilder: (context, Index) {
-                            final expenseCategory = data[Index];
-                            return Container(
-                              margin: const EdgeInsets.all(10),
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 20, vertical: 10),
-                              width: MediaQuery.of(context).size.width / 2.5,
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(10),
-                                boxShadow: const [
-                                  BoxShadow(
-                                    color: Colors.grey,
-                                    blurRadius: 5,
-                                    offset: Offset(0, 3),
-                                  )
-                                ],
+
+                Container(
+                  height: MediaQuery.of(context).size.height / 10,
+                  child: getExpenseFromFirebase.when(data: (data) {
+                    final Set<String> uniqueCategories = Set<String>();
+                    return ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: data.length,
+                        itemBuilder: (context, Index) {
+                          AddExpenseModel expenseCategory = data[Index];
+                          if (!uniqueCategories
+                              .contains(expenseCategory.category)) {
+                            uniqueCategories.add(expenseCategory.category);
+                            return GestureDetector(
+                              onTap: () {
+                                ref
+                                    .read(selectedCategoryProvider.notifier)
+                                    .state = expenseCategory.category ?? '';
+                              },
+                              child: Container(
+                                height: MediaQuery.of(context).size.height / 6,
+                                margin: const EdgeInsets.all(10),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 20, vertical: 10),
+                                width: MediaQuery.of(context).size.width / 2.6,
+                                decoration: BoxDecoration(
+                                  color: selectedCategory ==
+                                          expenseCategory.category
+                                      ? Colors.grey
+                                      : Colors.white,
+                                  borderRadius: BorderRadius.circular(10),
+                                  boxShadow: const [
+                                    BoxShadow(
+                                      color: Colors.grey,
+                                      blurRadius: 5,
+                                      offset: Offset(0, 3),
+                                    )
+                                  ],
+                                ),
+                                child: Text(expenseCategory.category),
                               ),
-                              child: Text(expenseCategory.category),
                             );
-                          });
-                    }, error: (err, _) {
-                      return Text(err.toString());
-                    }, loading: () {
-                      return const LoadingScreen();
-                    }),
-                  ),
+                          }
+                        });
+                  }, error: (err, _) {
+                    return Text(err.toString());
+                  }, loading: () {
+                    return const LoadingScreen();
+                  }),
                 ),
+
                 showmediumspace(),
                 showBigText(text: "Today", fontWeight: FontWeight.bold),
                 showmediumspace(),
@@ -231,14 +134,19 @@ class HomePage extends ConsumerWidget {
                     return ListView.builder(
                         itemCount: data.length,
                         itemBuilder: (context, index) {
-                          final expense = data[index];
+                          AddExpenseModel expense = data[index];
+                          if (selectedCategory != '' &&
+                              selectedCategory != expense.category) {
+                            return const SizedBox.shrink();
+                          }
                           String dateFormat =
-                              DateFormat('dd-MM-yyyy').format(expense.date);
+                              DateFormat('dd-MM-yyyy').format(expense.date!);
                           double amount =
                               double.tryParse(expense.amount) ?? 0.0;
                           return Container(
-                            margin: const EdgeInsets.only(bottom: 10),
-                            padding: const EdgeInsets.all(10),
+                            margin: const EdgeInsets.only(bottom: 5),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 5),
                             decoration: BoxDecoration(
                                 color: Colors.white,
                                 borderRadius: BorderRadius.circular(10),
@@ -263,14 +171,32 @@ class HomePage extends ConsumerWidget {
                                       .format(amount))
                                 ],
                               ),
-                              subtitle: Column(
+                              subtitle: Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
                                     expense.category,
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                    ),
                                   ),
-                                  Text(dateFormat.toString())
+                                  const SizedBox(
+                                    width: 13,
+                                  ),
+                                  Text(
+                                    dateFormat.toString(),
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                    ),
+                                  )
                                 ],
+                              ),
+                              trailing: IconButton(
+                                onPressed: () {},
+                                icon: const Icon(
+                                  Icons.delete,
+                                  color: Colors.blue,
+                                ),
                               ),
                             ),
                           );

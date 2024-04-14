@@ -2,7 +2,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:personal_expense_tracker_codsoft/Home/Backend/firebase_service.dart';
-import 'package:personal_expense_tracker_codsoft/Home/add_expense.dart';
 import 'package:personal_expense_tracker_codsoft/Models/add_expense_Model.dart';
 
 final showAlertDialogProvider = StateProvider<bool>((ref) => false);
