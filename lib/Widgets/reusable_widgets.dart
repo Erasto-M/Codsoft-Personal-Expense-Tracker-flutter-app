@@ -1,5 +1,8 @@
 // reusable Textformfields
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
+import 'package:personal_expense_tracker_codsoft/Home/Providers/homepage_providers.dart';
 import 'package:personal_expense_tracker_codsoft/Widgets/colors.dart';
 
 TextFormField showTextFormField({
@@ -10,7 +13,6 @@ TextFormField showTextFormField({
   required IconData? suffixIcon,
   required TextInputType textInputType,
   required bool obscureText,
-  bool? readonly,
 }) {
   return TextFormField(
     keyboardType: textInputType,
@@ -21,7 +23,6 @@ TextFormField showTextFormField({
     autocorrect: true,
     validator: validator as String? Function(String?)?,
     obscureText: obscureText,
-    readOnly: readonly ?? false,
     decoration: InputDecoration(
       prefixIcon: Icon(prefixIcon),
       suffixIcon: GestureDetector(child: Icon(suffixIcon)),
@@ -37,14 +38,13 @@ TextFormField showTextFormField({
 // big Text
 Text showBigText({
   required String text,
-  required FontWeight fontWeight,
 }) {
   return Text(
     text,
     style: TextStyle(
       color: bigTextcolor,
-      fontSize: 22,
-      fontWeight: fontWeight,
+      fontSize: 17,
+      fontWeight: FontWeight.w400,
     ),
   );
 }
@@ -128,123 +128,139 @@ Widget showsmallspace() {
 }
 
 showExpenseConatiner(BuildContext context) {
-  return Container(
-    padding: const EdgeInsets.all(10),
-    height: 110,
-    width: MediaQuery.of(context).size.width,
-    decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20), color: kcBackgroundColor),
-    child: Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        const Column(
-          children: [
-            Column(
-              children: [
-                Text(
-                  "Total Income",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 15,
-                    fontWeight: FontWeight.normal,
-                  ),
-                ),
-                Text(
-                  "& 50,000",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 10,
-                  ),
-                ),
-              ],
-            ),
-            Spacer(),
-            Column(
-              children: [
-                Text(
-                  "Total Savings",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 15,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                Text(
-                  "& 20,000",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 10,
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-        const Spacer(),
-        const Column(
-          children: [
-            Column(
-              children: [
-                Text(
-                  "Monthly Budget",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 15,
-                    fontWeight: FontWeight.normal,
-                  ),
-                ),
-                Text(
-                  "& 40,000",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 10,
-                  ),
-                ),
-              ],
-            ),
-            Spacer(),
-            Column(
-              children: [
-                Text(
-                  "Total Expense",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 15,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                Text(
-                  "& 30,000",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 10,
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-        const Spacer(),
-        Center(
-            child: Container(
-          decoration: BoxDecoration(
-            color: Colors.grey[200],
-            borderRadius: BorderRadius.circular(15),
-          ),
-          padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 5),
-          child: Row(
+  return Consumer(builder: (context, ref, child) {
+    final totalIncome = ref.watch(totalIncomeProvider).toStringAsFixed(0);
+    final totalMonthlyBudget =
+        ref.watch(mothlyBudgetProvider).toStringAsFixed(0);
+    final totalExpenses = ref.watch(totalExpensesProvider).toStringAsFixed(0);
+    final totalSavings =
+        ref.watch(totalSavingsCalculatorProvider).toStringAsFixed(0);
+    double expenseAmount = double.tryParse(totalExpenses) ?? 0.0;
+    double savingsAmount = double.tryParse(totalSavings) ?? 0.0;
+    double incomeAmount = double.tryParse(totalIncome) ?? 0.0;
+    double monthlyBudgetAmont = double.tryParse(totalMonthlyBudget) ?? 0.0;
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+      height: 110,
+      width: MediaQuery.of(context).size.width,
+      decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20), color: kcBackgroundColor),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Column(
             children: [
-              mediumText(text: "FEB", fontWeight: FontWeight.w100),
-              const SizedBox(
-                width: 5,
+              Column(
+                children: [
+                  const Text(
+                    "Total Income",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 15,
+                      fontWeight: FontWeight.normal,
+                    ),
+                  ),
+                  Text(
+                    NumberFormat.currency(symbol: '\$', decimalDigits: 0)
+                        .format(incomeAmount),
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 13,
+                    ),
+                  ),
+                ],
               ),
-              const Icon(
-                Icons.arrow_drop_down,
-              )
+              const Spacer(),
+              Column(
+                children: [
+                  const Text(
+                    "Total Savings",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Text(
+                    NumberFormat.currency(symbol: '\$', decimalDigits: 0)
+                        .format(savingsAmount),
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 13,
+                    ),
+                  ),
+                ],
+              ),
             ],
           ),
-        ))
-      ],
-    ),
-  );
+          const Spacer(),
+          Column(
+            children: [
+              Column(
+                children: [
+                  const Text(
+                    "Monthly Budget",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 13,
+                      fontWeight: FontWeight.normal,
+                    ),
+                  ),
+                  Text(
+                    NumberFormat.currency(symbol: '\$', decimalDigits: 0)
+                        .format(monthlyBudgetAmont),
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 13,
+                    ),
+                  ),
+                ],
+              ),
+              const Spacer(),
+              Column(
+                children: [
+                  const Text(
+                    "Total Expense",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Text(
+                    NumberFormat.currency(symbol: '\$', decimalDigits: 0)
+                        .format(expenseAmount),
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 13,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          // const Spacer(),
+          // Center(
+          //     child: Container(
+          //   decoration: BoxDecoration(
+          //     color: Colors.grey[200],
+          //     borderRadius: BorderRadius.circular(15),
+          //   ),
+          //   padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 5),
+          //   child: Row(
+          //     children: [
+          //       mediumText(text: "FEB", fontWeight: FontWeight.w100),
+          //       const SizedBox(
+          //         width: 5,
+          //       ),
+          //       const Icon(
+          //         Icons.arrow_drop_down,
+          //       )
+          //     ],
+          //   ),
+          // )),
+        ],
+      ),
+    );
+  });
 }

@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:personal_expense_tracker_codsoft/Models/add_expense_Model.dart';
+import 'package:personal_expense_tracker_codsoft/Widgets/colors.dart';
 
 final firebaseServicesProvider = Provider<FirebaseServices>((ref) {
   return FirebaseServices();
@@ -67,5 +68,19 @@ class FirebaseServices {
   }
 
 //Delete expense
-  static Future<void> deleteExpense() async {}
+  deleteExpense({required String expenseId}) async {
+    try {
+      final collectionRef = firebaseFirestore.collection("Expenses");
+      await collectionRef.doc(expenseId).delete().then((value) {
+        Fluttertoast.showToast(
+          msg: "Expense Deleted Successfully",
+          toastLength: Toast.LENGTH_SHORT,
+          textColor: Color.fromARGB(255, 247, 248, 247),
+          gravity: ToastGravity.TOP,
+          backgroundColor: kcBackgroundColor,
+          fontSize: 18,
+        );
+      });
+    } catch (e) {}
+  }
 }

@@ -4,6 +4,7 @@ import 'package:flutter/painting.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:personal_expense_tracker_codsoft/Home/Backend/firebase_service.dart';
 import 'package:personal_expense_tracker_codsoft/Home/Providers/homepage_providers.dart';
+import 'package:personal_expense_tracker_codsoft/Home/homepage.dart';
 import 'package:personal_expense_tracker_codsoft/Models/add_expense_Model.dart';
 import 'package:personal_expense_tracker_codsoft/Widgets/colors.dart';
 import 'package:personal_expense_tracker_codsoft/Widgets/reusable_widgets.dart';
@@ -11,61 +12,95 @@ import 'package:personal_expense_tracker_codsoft/Widgets/reusable_widgets.dart';
 StateProvider selectedCategoryProvider =
     StateProvider((ref) => 'Shopping & Foods');
 
-showAlertDialog(BuildContext context) {
-  showDialog(
-      context: context,
-      builder: (context) {
-        return Consumer(builder: (context, ref, child) {
-          final expenseTitleController = ref.watch(expenseTitleProvider);
-          final expenseAmountController = ref.watch(expenseAmountProvider);
-          final categories = ref.watch(expenseCategoryProvider);
-          final isLoading = ref.watch(isExpenseLoadingProvider);
-          final onButtonClick = ref.watch(addExpenseButtonTapped);
-          final selectedCategory = ref.watch(selectedCategoryProvider);
-          GlobalKey<FormState> expenseFormKey = GlobalKey<FormState>();
-          return AlertDialog(
-            elevation: 5,
-            shape: const RoundedRectangleBorder(),
-            title: Center(
-                child: mediumText(
-                    text: "Add Expense", fontWeight: FontWeight.bold)),
-            content: Container(
-                height: onButtonClick ? 380 : 290,
-                child: Form(
-                  key: expenseFormKey,
+class FormScreen extends ConsumerWidget {
+  FormScreen({super.key});
+  GlobalKey<FormState> formScreenKey = GlobalKey<FormState>();
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final expenseTitleController = ref.watch(expenseTitleProvider);
+    final expenseAmountController = ref.watch(expenseAmountProvider);
+    final categories = ref.watch(expenseCategoryProvider);
+    final isLoading = ref.watch(isExpenseLoadingProvider);
+    final onButtonClick = ref.watch(addExpenseButtonTapped);
+    final selectedCategory = ref.watch(selectedCategoryProvider);
+    return SafeArea(
+        child: Scaffold(
+      backgroundColor: Colors.grey[200],
+      body: SingleChildScrollView(
+        child: Container(
+          margin: const EdgeInsets.symmetric(vertical: 40, horizontal: 30),
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  IconButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    icon: const Icon(
+                      Icons.arrow_back_outlined,
+                    ),
+                  ),
+                  const SizedBox(
+                    width: 50,
+                  ),
+                  Text(
+                    "Add Expense",
+                    style: TextStyle(
+                        color: kcBackgroundColor,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 20),
+                  ),
+                ],
+              ),
+              const SizedBox(
+                height: 40,
+              ),
+              Form(
+                  key: formScreenKey,
                   child: Column(
                     children: [
-                      showTextFormField(
-                          controller: expenseTitleController,
-                          labelText: "Expense title",
-                          validator: (value) {
-                            if (value!.isEmpty) {
-                              return "Title Cannot be empty";
-                            }
-                          },
-                          prefixIcon: Icons.title,
-                          suffixIcon: null,
-                          textInputType: TextInputType.text,
-                          obscureText: false),
-                      showmediumspace(),
-                      showTextFormField(
-                          controller: expenseAmountController,
-                          labelText: "Amount",
-                          validator: (value) {
-                            if (value!.isEmpty) {
-                              return "Please Enter the Amount of the Expense";
-                            }
-                          },
-                          prefixIcon: Icons.money_sharp,
-                          suffixIcon: null,
-                          textInputType: TextInputType.text,
-                          obscureText: false),
-                      showmediumspace(),
+                      TextFormField(
+                        validator: (value) {
+                          if (value!.isEmpty) {
+                            return "Title Cannot be empty";
+                          }
+                        },
+                        keyboardType: TextInputType.text,
+                        controller: expenseTitleController,
+                        decoration: InputDecoration(
+                            labelText: "Expense Title",
+                            prefixIcon: const Icon(Icons.title),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            )),
+                      ),
+                      showsmallspace(),
+                      TextFormField(
+                        validator: (value) {
+                          if (value!.isEmpty) {
+                            return "Please Enter the Amount of the Expense";
+                          }
+                        },
+                        keyboardType: TextInputType.number,
+                        controller: expenseAmountController,
+                        decoration: InputDecoration(
+                            labelText: "Amount",
+                            prefixIcon: const Icon(Icons.money_rounded),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            )),
+                      ),
+                      showsmallspace(),
                       Container(
-                        padding: const EdgeInsets.all(3),
+                        padding: const EdgeInsets.all(5),
                         decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(15),
-                            color: Colors.white),
+                            border: Border.all(
+                              color: Colors.black54,
+                              width: 1.0,
+                            ),
+                            borderRadius: BorderRadius.circular(10),
+                            color: Colors.grey[200]),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -96,7 +131,7 @@ showAlertDialog(BuildContext context) {
                           ],
                         ),
                       ),
-                      showmediumspace(),
+                      showLargespace(),
                       isLoading
                           ? CircularProgressIndicator(
                               color: kcBackgroundColor,
@@ -106,7 +141,7 @@ showAlertDialog(BuildContext context) {
                                 ref
                                     .read(addExpenseButtonTapped.notifier)
                                     .state = true;
-                                if (expenseFormKey.currentState!.validate()) {
+                                if (formScreenKey.currentState!.validate()) {
                                   ref
                                       .read(isExpenseLoadingProvider.notifier)
                                       .state = true;
@@ -135,13 +170,13 @@ showAlertDialog(BuildContext context) {
                               },
                               child: Container(
                                 height: 50,
-                                width: MediaQuery.of(context).size.width / 2,
+                                width: MediaQuery.of(context).size.width,
                                 decoration: BoxDecoration(
                                     color: kcBackgroundColor,
-                                    borderRadius: BorderRadius.circular(20)),
+                                    borderRadius: BorderRadius.circular(10)),
                                 child: const Center(
                                   child: Text(
-                                    "Add",
+                                    "Submit Expense",
                                     style: TextStyle(
                                       color: Colors.white,
                                       fontWeight: FontWeight.bold,
@@ -152,9 +187,11 @@ showAlertDialog(BuildContext context) {
                               ),
                             )
                     ],
-                  ),
-                )),
-          );
-        });
-      });
+                  ))
+            ],
+          ),
+        ),
+      ),
+    ));
+  }
 }

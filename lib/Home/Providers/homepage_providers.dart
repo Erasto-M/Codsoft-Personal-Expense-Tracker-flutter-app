@@ -34,3 +34,40 @@ final getExpenseFromFirebaseProvider = StreamProvider((ref) {
 });
 // selected category provider
 final selectedCategoryProvider = StateProvider((ref) => null);
+
+// total expense provider
+// get total amount for all expenses in firebase
+final totalExpensesProvider = Provider((ref) {
+  final expenses = ref.watch(getExpenseFromFirebaseProvider);
+  double totalExpenses = expenses.when(data: (data) {
+    return data
+        .map<double>((expense) => double.tryParse(expense.amount) ?? 0.0)
+        .fold(0.0, (prev, amount) => prev + amount);
+  }, error: (err, _) {
+    return 0.0;
+  }, loading: () {
+    return 0.0;
+  });
+  return totalExpenses;
+});
+// Total income Provider
+final totalIncomeProvider = StateProvider<double>((ref) {
+  return 50000.00;
+});
+// Monthy budget provider
+final mothlyBudgetProvider = StateProvider<double>((ref) {
+  return 30000.00;
+});
+// monthly budget calculator
+final totalSavingsCalculatorProvider = Provider<double>((ref) {
+  // Calculating the remaining amount from what  the user had budgeted
+  final totalExpenses = ref.watch(totalExpensesProvider);
+  final totalMonthlyBudget = ref.watch(mothlyBudgetProvider);
+  final remainingMonthlyBudget = totalMonthlyBudget - totalExpenses;
+  // calculating the remaining amount from the income
+  final totalMonthlyincome = ref.watch(totalIncomeProvider);
+  final savedFromIncome = totalMonthlyincome - totalMonthlyBudget;
+  // total savings
+  final totalSavings = remainingMonthlyBudget + savedFromIncome;
+  return totalSavings;
+});
