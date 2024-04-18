@@ -36,7 +36,7 @@ final getExpenseFromFirebaseProvider = StreamProvider((ref) {
 final selectedCategoryProvider = StateProvider((ref) => null);
 
 // total expense provider
-// get total amount for all expenses in firebase
+// get total amount for all expenses in firebasec
 final totalExpensesProvider = Provider((ref) {
   final expenses = ref.watch(getExpenseFromFirebaseProvider);
   double totalExpenses = expenses.when(data: (data) {
@@ -70,4 +70,23 @@ final totalSavingsCalculatorProvider = Provider<double>((ref) {
   // total savings
   final totalSavings = remainingMonthlyBudget + savedFromIncome;
   return totalSavings;
+});
+
+// total expenses for each category
+final totalExpensesForCategoryProvider =
+    Provider.family<double, String>((ref, category) {
+  final expenses = ref.watch(getExpenseFromFirebaseProvider);
+  double totalExpenses = 0;
+  // calculate the total expenses for a given category
+  expenses.when(data: (data) {
+    totalExpenses = data
+        .where((expense) => expense.category == category)
+        .map<double>((expense) => double.tryParse(expense.amount) ?? 0.0)
+        .fold(0.0, (prev, amount) => prev + amount);
+  }, error: (err, _) {
+    totalExpenses = 0.0;
+  }, loading: () {
+    totalExpenses = 0.0;
+  });
+  return totalExpenses;
 });

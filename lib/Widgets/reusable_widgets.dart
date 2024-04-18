@@ -129,12 +129,12 @@ Widget showsmallspace() {
 
 showExpenseConatiner(BuildContext context) {
   return Consumer(builder: (context, ref, child) {
-    final totalIncome = ref.watch(totalIncomeProvider).toStringAsFixed(0);
+    final totalIncome = ref.watch(totalIncomeProvider).toStringAsFixed(2);
     final totalMonthlyBudget =
-        ref.watch(mothlyBudgetProvider).toStringAsFixed(0);
-    final totalExpenses = ref.watch(totalExpensesProvider).toStringAsFixed(0);
+        ref.watch(mothlyBudgetProvider).toStringAsFixed(2);
+    final totalExpenses = ref.watch(totalExpensesProvider).toStringAsFixed(2);
     final totalSavings =
-        ref.watch(totalSavingsCalculatorProvider).toStringAsFixed(0);
+        ref.watch(totalSavingsCalculatorProvider).toStringAsFixed(2);
     double expenseAmount = double.tryParse(totalExpenses) ?? 0.0;
     double savingsAmount = double.tryParse(totalSavings) ?? 0.0;
     double incomeAmount = double.tryParse(totalIncome) ?? 0.0;
@@ -161,7 +161,7 @@ showExpenseConatiner(BuildContext context) {
                     ),
                   ),
                   Text(
-                    NumberFormat.currency(symbol: '\$', decimalDigits: 0)
+                    NumberFormat.currency(symbol: '\$', decimalDigits: 2)
                         .format(incomeAmount),
                     style: const TextStyle(
                       color: Colors.white,
@@ -182,7 +182,7 @@ showExpenseConatiner(BuildContext context) {
                     ),
                   ),
                   Text(
-                    NumberFormat.currency(symbol: '\$', decimalDigits: 0)
+                    NumberFormat.currency(symbol: '\$', decimalDigits: 2)
                         .format(savingsAmount),
                     style: const TextStyle(
                       color: Colors.white,
@@ -207,7 +207,7 @@ showExpenseConatiner(BuildContext context) {
                     ),
                   ),
                   Text(
-                    NumberFormat.currency(symbol: '\$', decimalDigits: 0)
+                    NumberFormat.currency(symbol: '\$', decimalDigits: 2)
                         .format(monthlyBudgetAmont),
                     style: const TextStyle(
                       color: Colors.white,
@@ -228,7 +228,7 @@ showExpenseConatiner(BuildContext context) {
                     ),
                   ),
                   Text(
-                    NumberFormat.currency(symbol: '\$', decimalDigits: 0)
+                    NumberFormat.currency(symbol: '\$', decimalDigits: 2)
                         .format(expenseAmount),
                     style: const TextStyle(
                       color: Colors.white,
