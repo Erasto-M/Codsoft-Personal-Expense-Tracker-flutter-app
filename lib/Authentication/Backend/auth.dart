@@ -100,7 +100,7 @@ class AuthUser {
         );
       }).then((value) {
         Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (context) => const LoginScreen()));
+            MaterialPageRoute(builder: (context) => LoginScreen()));
       });
     } catch (e) {
       print(e.toString());

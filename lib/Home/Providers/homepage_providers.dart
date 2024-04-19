@@ -20,6 +20,15 @@ final expenseCategoryProvider = StateProvider((ref) => [
       'Debts And Loans',
       'Entertainment',
     ]);
+final expnenseImagesProvider = StateProvider((ref) => [
+      'assets/images/shopping.png',
+      'assets/images/utilities.png',
+      'assets/images/transport.png',
+      'assets/images/health.png',
+      'assets/images/personalcare.png',
+      'assets/images/debts.png',
+      'assets/images/entertainment2.jpg',
+    ]);
 // is loading providers
 final isExpenseLoadingProvider = StateProvider<bool>((ref) => false);
 

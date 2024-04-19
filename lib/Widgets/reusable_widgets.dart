@@ -44,7 +44,7 @@ Text showBigText({
     style: TextStyle(
       color: bigTextcolor,
       fontSize: 17,
-      fontWeight: FontWeight.w400,
+      fontWeight: FontWeight.bold,
     ),
   );
 }
@@ -141,7 +141,7 @@ showExpenseConatiner(BuildContext context) {
     double monthlyBudgetAmont = double.tryParse(totalMonthlyBudget) ?? 0.0;
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-      height: 110,
+      height: 150,
       width: MediaQuery.of(context).size.width,
       decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20), color: kcBackgroundColor),
@@ -174,7 +174,7 @@ showExpenseConatiner(BuildContext context) {
               Column(
                 children: [
                   const Text(
-                    "Total Savings",
+                    "Total Balance",
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 15,
@@ -186,7 +186,7 @@ showExpenseConatiner(BuildContext context) {
                         .format(savingsAmount),
                     style: const TextStyle(
                       color: Colors.white,
-                      fontSize: 13,
+                      fontSize: 20,
                     ),
                   ),
                 ],
@@ -223,7 +223,7 @@ showExpenseConatiner(BuildContext context) {
                     "Total Expense",
                     style: TextStyle(
                       color: Colors.white,
-                      fontSize: 13,
+                      fontSize: 15,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -232,7 +232,7 @@ showExpenseConatiner(BuildContext context) {
                         .format(expenseAmount),
                     style: const TextStyle(
                       color: Colors.white,
-                      fontSize: 13,
+                      fontSize: 20,
                     ),
                   ),
                 ],

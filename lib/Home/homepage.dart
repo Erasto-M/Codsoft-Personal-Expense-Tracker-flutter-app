@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:personal_expense_tracker_codsoft/Authentication/Providers/auth_providers.dart';
@@ -37,9 +38,19 @@ class HomePage extends ConsumerWidget {
               Row(
                 children: [
                   //user image
-                  const CircleAvatar(),
+                  Container(
+                    height: 50,
+                    width: 50,
+                    decoration: const BoxDecoration(
+                      color: Colors.grey,
+                      shape: BoxShape.circle,
+                      image: DecorationImage(
+                        image: AssetImage("assets/images/user.png"),
+                      ),
+                    ),
+                  ),
                   const SizedBox(
-                    width: 15,
+                    width: 10,
                   ),
                   // hello user column
                   Column(
@@ -81,11 +92,13 @@ class HomePage extends ConsumerWidget {
                 height: MediaQuery.of(context).size.height / 10,
                 child: getExpenseFromFirebase.when(data: (data) {
                   final categories = ref.watch(expenseCategoryProvider);
+                  final categoryImages = ref.watch(expnenseImagesProvider);
                   return ListView.builder(
                       scrollDirection: Axis.horizontal,
                       itemCount: categories.length,
                       itemBuilder: (context, Index) {
                         final expenseCategoryTitle = categories[Index];
+                        final expenseImages = categoryImages[Index];
                         final totalExpenseForCategories = ref.watch(
                             totalExpensesForCategoryProvider(
                                 expenseCategoryTitle));
@@ -101,8 +114,8 @@ class HomePage extends ConsumerWidget {
                               height: MediaQuery.of(context).size.height / 6,
                               margin: const EdgeInsets.all(10),
                               padding: const EdgeInsets.symmetric(
-                                  horizontal: 20, vertical: 10),
-                              width: MediaQuery.of(context).size.width / 2.6,
+                                  horizontal: 10, vertical: 10),
+                              width: MediaQuery.of(context).size.width / 2,
                               decoration: BoxDecoration(
                                 color: selectedCategory == expenseCategoryTitle
                                     ? const Color.fromARGB(255, 81, 112, 82)
@@ -116,29 +129,52 @@ class HomePage extends ConsumerWidget {
                                   ),
                                 ],
                               ),
-                              child: ListView(
+                              child: Row(
                                 children: [
-                                  selectedCategory == expenseCategoryTitle
-                                      ? Text(
-                                          expenseCategoryTitle,
-                                          style: const TextStyle(
-                                              color: Colors.white,
-                                              fontWeight: FontWeight.bold),
-                                        )
-                                      : Text(expenseCategoryTitle),
-                                  // the total  expense for each category
-                                  Text(
-                                    NumberFormat.currency(
-                                            symbol: '\$', decimalDigits: 2)
-                                        .format(totalExpense),
-                                    style:
+                                  Container(
+                                    height: 40,
+                                    width: 40,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      image: DecorationImage(
+                                          image: AssetImage(expenseImages),
+                                          fit: BoxFit.cover),
+                                      color: Colors.grey[200],
+                                    ),
+                                  ),
+                                  const SizedBox(
+                                    width: 10,
+                                  ),
+                                  Flexible(
+                                    flex: 1,
+                                    child: ListView(
+                                      children: [
                                         selectedCategory == expenseCategoryTitle
-                                            ? const TextStyle(
-                                                color: Colors.white,
-                                                fontWeight: FontWeight.bold)
-                                            : const TextStyle(
-                                                color: Colors.black,
-                                                fontWeight: FontWeight.bold),
+                                            ? Text(
+                                                expenseCategoryTitle,
+                                                style: const TextStyle(
+                                                    color: Colors.white,
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                              )
+                                            : Text(expenseCategoryTitle),
+                                        // the total  expense for each category
+                                        Text(
+                                          NumberFormat.currency(
+                                                  symbol: '\$',
+                                                  decimalDigits: 2)
+                                              .format(totalExpense),
+                                          style: selectedCategory ==
+                                                  expenseCategoryTitle
+                                              ? const TextStyle(
+                                                  color: Colors.white,
+                                                  fontWeight: FontWeight.bold)
+                                              : const TextStyle(
+                                                  color: Colors.black,
+                                                  fontWeight: FontWeight.bold),
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ],
                               )),
@@ -158,7 +194,10 @@ class HomePage extends ConsumerWidget {
               // Listview for showing expenses for the selected category
               Expanded(
                 child: getExpenseFromFirebase.when(data: (data) {
+                  final categoryImages = ref.watch(expnenseImagesProvider);
                   if (data.isNotEmpty) {
+                    int selectedCategoryIndex = data.indexWhere(
+                        (expense) => expense.category == selectedCategory);
                     return ListView.builder(
                         itemCount: data.length,
                         itemBuilder: (context, index) {
@@ -171,10 +210,27 @@ class HomePage extends ConsumerWidget {
                               DateFormat('dd-MM-yyyy').format(expense.date!);
                           double amount =
                               double.tryParse(expense.amount) ?? 0.0;
+                          String imageAssetPath;
+                          if (selectedCategoryIndex == 0) {
+                            imageAssetPath = categoryImages[0];
+                          } else if (selectedCategoryIndex == 1) {
+                            imageAssetPath = categoryImages[1];
+                          } else if (selectedCategoryIndex == 2) {
+                            imageAssetPath = categoryImages[2];
+                          } else if (selectedCategoryIndex == 3) {
+                            imageAssetPath = categoryImages[3];
+                          } else if (selectedCategoryIndex == 4) {
+                            imageAssetPath = categoryImages[4];
+                          } else if (selectedCategoryIndex == 5) {
+                            imageAssetPath = categoryImages[5];
+                          } else {
+                            imageAssetPath = categoryImages[6];
+                          }
+
                           return Container(
                             margin: const EdgeInsets.only(bottom: 5),
                             padding: const EdgeInsets.symmetric(
-                                horizontal: 10, vertical: 5),
+                                horizontal: 2, vertical: 5),
                             decoration: BoxDecoration(
                                 color: Colors.white,
                                 borderRadius: BorderRadius.circular(10),
@@ -186,6 +242,16 @@ class HomePage extends ConsumerWidget {
                                   )
                                 ]),
                             child: ListTile(
+                              leading: Container(
+                                height: 40,
+                                width: 40,
+                                decoration: BoxDecoration(
+                                    color: Colors.grey[200],
+                                    image: DecorationImage(
+                                      image: AssetImage(imageAssetPath),
+                                    ),
+                                    shape: BoxShape.circle),
+                              ),
                               title: Row(
                                 children: [
                                   Text(

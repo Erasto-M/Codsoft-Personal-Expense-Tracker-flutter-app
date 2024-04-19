@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:personal_expense_tracker_codsoft/Authentication/Providers/auth_providers.dart';
 import 'package:personal_expense_tracker_codsoft/Authentication/Screens/login_screen.dart';
@@ -6,12 +7,10 @@ import 'package:personal_expense_tracker_codsoft/Widgets/colors.dart';
 import 'package:personal_expense_tracker_codsoft/Widgets/reusable_widgets.dart';
 
 class SignUpScreen extends ConsumerWidget {
-  const SignUpScreen({Key? key}) : super(key: key);
-
+  SignUpScreen({Key? key}) : super(key: key);
+  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final GlobalKey<FormState> formKey = GlobalKey<FormState>();
-
     // Controllers
     final emailController = ref.watch(emailControllerProvider);
     final usernameController = ref.watch(userNameControllerProvider);
@@ -25,18 +24,22 @@ class SignUpScreen extends ConsumerWidget {
     return SafeArea(
       child: Scaffold(
         body: Container(
-          padding: const EdgeInsets.all(15),
+          padding:
+              const EdgeInsets.only(top: 1, right: 15, left: 15, bottom: 10),
           child: SingleChildScrollView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                showLargespace(),
-                showLargespace(),
+                Image.asset(
+                  "assets/images/download.png",
+                  height: 250,
+                  width: 300,
+                ),
                 Text(
                   "Sign Up",
                   style: TextStyle(
                       color: kcBackgroundColor,
-                      fontSize: 20,
+                      fontSize: 25,
                       fontWeight: FontWeight.bold),
                 ),
                 showmediumspace(),
@@ -124,8 +127,8 @@ class SignUpScreen extends ConsumerWidget {
                       showLargespace(),
                       isLoading
                           ? const CircularProgressIndicator()
-                          : showOutlinedButton(
-                              function: () async {
+                          : GestureDetector(
+                              onTap: () async {
                                 if (formKey.currentState!.validate()) {
                                   // Form is validated
                                   ref.read(isLoadingProvider.notifier).state =
@@ -147,7 +150,34 @@ class SignUpScreen extends ConsumerWidget {
                                       false;
                                 }
                               },
-                              text: "Create Account",
+                              child: Container(
+                                height: 50,
+                                padding:
+                                    const EdgeInsets.only(left: 50, right: 50),
+                                width: MediaQuery.of(context).size.width,
+                                decoration: BoxDecoration(
+                                    color: kcBackgroundColor,
+                                    borderRadius: BorderRadius.circular(10)),
+                                child: const Row(
+                                  children: [
+                                    Center(
+                                      child: Text(
+                                        "Create Account",
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 30,
+                                        ),
+                                      ),
+                                    ),
+                                    Spacer(),
+                                    Icon(
+                                      Icons.arrow_forward_ios_outlined,
+                                      color: Colors.white,
+                                    ),
+                                  ],
+                                ),
+                              ),
                             ),
                       showsmallspace(),
                       Row(
@@ -159,7 +189,7 @@ class SignUpScreen extends ConsumerWidget {
                           TextButton(
                               onPressed: () {
                                 Navigator.of(context).push(MaterialPageRoute(
-                                    builder: (context) => const LoginScreen()));
+                                    builder: (context) => LoginScreen()));
                               },
                               child: const Text(
                                 "Login",

@@ -3,8 +3,8 @@
 import 'package:flutter/material.dart';
 
 // Text colors
-Color? bigTextcolor = const Color.fromARGB(255, 22, 22, 22);
-Color mediumTextcolor = Color.fromARGB(255, 61, 60, 60);
+Color? bigTextcolor = Color.fromARGB(255, 7, 7, 7);
+Color mediumTextcolor = Color.fromARGB(255, 32, 32, 32);
 Color smallTextcolor = Color.fromARGB(255, 59, 58, 58);
 
 // Background color

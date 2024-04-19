@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:personal_expense_tracker_codsoft/Authentication/Providers/auth_providers.dart';
 import 'package:personal_expense_tracker_codsoft/Authentication/Screens/signup_screen.dart';
@@ -7,8 +8,8 @@ import 'package:personal_expense_tracker_codsoft/Widgets/reusable_widgets.dart';
 
 // login class using the riverpod state management
 class LoginScreen extends ConsumerWidget {
-  const LoginScreen({super.key});
-
+  LoginScreen({super.key});
+  GlobalKey<FormState> formKey = GlobalKey<FormState>();
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // Controllers
@@ -17,7 +18,7 @@ class LoginScreen extends ConsumerWidget {
         ref.watch(signInPasswordControllerProvider);
     // isLoading
     final isLoading = ref.watch(isLoadingProvider);
-    GlobalKey<FormState> formKey = GlobalKey<FormState>();
+
     return SafeArea(
       child: Scaffold(
         body: Container(
@@ -26,8 +27,11 @@ class LoginScreen extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                showLargespace(),
-                showLargespace(),
+                Image.asset(
+                  "assets/images/download.png",
+                  height: 250,
+                  width: 300,
+                ),
                 Text(
                   "Login",
                   style: TextStyle(
@@ -83,8 +87,8 @@ class LoginScreen extends ConsumerWidget {
                       showLargespace(),
                       isLoading
                           ? const CircularProgressIndicator()
-                          : showOutlinedButton(
-                              function: () async {
+                          : GestureDetector(
+                              onTap: () async {
                                 if (formKey.currentState!.validate()) {
                                   // Form is validated
                                   ref.read(isLoadingProvider.notifier).state =
@@ -108,7 +112,34 @@ class LoginScreen extends ConsumerWidget {
                                       false; // set loading to false
                                 }
                               },
-                              text: "LOGIN",
+                              child: Container(
+                                height: 50,
+                                padding: const EdgeInsets.only(
+                                    left: 150, right: 100),
+                                width: MediaQuery.of(context).size.width,
+                                decoration: BoxDecoration(
+                                    color: kcBackgroundColor,
+                                    borderRadius: BorderRadius.circular(10)),
+                                child: const Row(
+                                  children: [
+                                    Center(
+                                      child: Text(
+                                        "Login",
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 30,
+                                        ),
+                                      ),
+                                    ),
+                                    Spacer(),
+                                    Icon(
+                                      Icons.arrow_forward_ios_outlined,
+                                      color: Colors.white,
+                                    ),
+                                  ],
+                                ),
+                              ),
                             ),
                       showsmallspace(),
                       Row(
@@ -120,8 +151,7 @@ class LoginScreen extends ConsumerWidget {
                           TextButton(
                               onPressed: () {
                                 Navigator.of(context).push(MaterialPageRoute(
-                                    builder: (context) =>
-                                        const SignUpScreen()));
+                                    builder: (context) => SignUpScreen()));
                               },
                               child: const Text(
                                 "Register",
