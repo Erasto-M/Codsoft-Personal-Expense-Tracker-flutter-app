@@ -1,23 +1,36 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
+import 'package:personal_expense_tracker_codsoft/Authentication/Providers/auth_providers.dart';
+import 'package:personal_expense_tracker_codsoft/Authentication/Screens/loading_screen.dart';
+import 'package:personal_expense_tracker_codsoft/Home/Backend/firebase_service.dart';
 import 'package:personal_expense_tracker_codsoft/Home/Providers/homepage_providers.dart';
-import 'package:personal_expense_tracker_codsoft/Home/add_expense.dart';
+import 'package:personal_expense_tracker_codsoft/Home/add_expense_screen.dart';
+import 'package:personal_expense_tracker_codsoft/Models/add_expense_Model.dart';
 import 'package:personal_expense_tracker_codsoft/Widgets/colors.dart';
 import 'package:personal_expense_tracker_codsoft/Widgets/reusable_widgets.dart';
 
-class HomePage extends ConsumerWidget {
-  const HomePage({super.key});
+// selected Category
+final selectedCategoryProvider = StateProvider((ref) {
+  return 'Shopping & Foods';
+});
 
+class HomePage extends ConsumerWidget {
+  const HomePage({
+    super.key,
+  });
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final alertDialog = ref.watch(alertDialogProvider);
+    final getExpenseFromFirebase = ref.watch(getExpenseFromFirebaseProvider);
+    final selectedCategory = ref.watch(selectedCategoryProvider);
+
     return SafeArea(
       child: Scaffold(
         backgroundColor: Colors.grey[200],
         body: Container(
           padding:
-              const EdgeInsets.only(top: 30, left: 15, right: 15, bottom: 10),
+              const EdgeInsets.only(top: 15, left: 15, right: 15, bottom: 10),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -25,9 +38,19 @@ class HomePage extends ConsumerWidget {
               Row(
                 children: [
                   //user image
-                  const CircleAvatar(),
+                  Container(
+                    height: 50,
+                    width: 50,
+                    decoration: const BoxDecoration(
+                      color: Colors.grey,
+                      shape: BoxShape.circle,
+                      image: DecorationImage(
+                        image: AssetImage("assets/images/user.png"),
+                      ),
+                    ),
+                  ),
                   const SizedBox(
-                    width: 15,
+                    width: 10,
                   ),
                   // hello user column
                   Column(
@@ -42,9 +65,11 @@ class HomePage extends ConsumerWidget {
                   const Spacer(),
                   Row(
                     children: [
-                      showBigText(text: "Logout", fontWeight: FontWeight.bold),
+                      showBigText(text: "Logout"),
                       IconButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            ref.read(firebaseAuthProvider).signOutUser(context);
+                          },
                           icon: const Icon(
                             Icons.logout,
                             size: 25,
@@ -55,128 +80,252 @@ class HomePage extends ConsumerWidget {
                 ],
               ),
               // Momthly budget container
-              showmediumspace(),
-              Container(
-                padding: const EdgeInsets.all(10),
-                height: 150,
-                width: MediaQuery.of(context).size.width,
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(20),
-                    color: Colors.blue[800]),
-                child: const Column(
-                  children: [
-                    Row(
-                      children: [
-                        Column(
-                          children: [
-                            Text(
-                              "Total Income",
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 20,
-                                fontWeight: FontWeight.normal,
-                              ),
-                            ),
-                            Text(
-                              "& 50,000",
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 15,
-                                fontWeight: FontWeight.normal,
-                              ),
-                            ),
-                          ],
-                        ),
-                        Spacer(),
-                        Column(
-                          children: [
-                            Text(
-                              "Total Savings",
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            Text(
-                              "& 20,000",
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 15,
-                                fontWeight: FontWeight.normal,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                    Spacer(),
-                    Row(
-                      children: [
-                        Column(
-                          children: [
-                            Text(
-                              "Monthly Budget",
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 20,
-                                fontWeight: FontWeight.normal,
-                              ),
-                            ),
-                            Text(
-                              "& 40,000",
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                        Spacer(),
-                        Column(
-                          children: [
-                            Text(
-                              "Total Expense",
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            Text(
-                              "& 30,000",
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    )
-                  ],
-                ),
-              ),
+              showsmallspace(),
+              showBigText(text: "Expense Summaries"),
+              showsmallspace(),
+              showExpenseConatiner(context),
               showmediumspace(),
               // categories listview
-              showBigText(text: "Categories", fontWeight: FontWeight.bold)
+              showBigText(text: "Categories"),
+              // Container for the Categories
+              Container(
+                height: MediaQuery.of(context).size.height / 10,
+                child: getExpenseFromFirebase.when(data: (data) {
+                  final categories = ref.watch(expenseCategoryProvider);
+                  final categoryImages = ref.watch(expnenseImagesProvider);
+                  return ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: categories.length,
+                      itemBuilder: (context, Index) {
+                        final expenseCategoryTitle = categories[Index];
+                        final expenseImages = categoryImages[Index];
+                        final totalExpenseForCategories = ref.watch(
+                            totalExpensesForCategoryProvider(
+                                expenseCategoryTitle));
+                        double totalExpense = double.tryParse(
+                                totalExpenseForCategories.toStringAsFixed(2)) ??
+                            0.0;
+                        return GestureDetector(
+                          onTap: () {
+                            ref.read(selectedCategoryProvider.notifier).state =
+                                expenseCategoryTitle;
+                          },
+                          child: Container(
+                              height: MediaQuery.of(context).size.height / 6,
+                              margin: const EdgeInsets.all(10),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 10),
+                              width: MediaQuery.of(context).size.width / 2,
+                              decoration: BoxDecoration(
+                                color: selectedCategory == expenseCategoryTitle
+                                    ? const Color.fromARGB(255, 81, 112, 82)
+                                    : Colors.white,
+                                borderRadius: BorderRadius.circular(10),
+                                boxShadow: const [
+                                  BoxShadow(
+                                    color: Colors.grey,
+                                    blurRadius: 5,
+                                    offset: Offset(0, 3),
+                                  ),
+                                ],
+                              ),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    height: 40,
+                                    width: 40,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      image: DecorationImage(
+                                          image: AssetImage(expenseImages),
+                                          fit: BoxFit.cover),
+                                      color: Colors.grey[200],
+                                    ),
+                                  ),
+                                  const SizedBox(
+                                    width: 10,
+                                  ),
+                                  Flexible(
+                                    flex: 1,
+                                    child: ListView(
+                                      children: [
+                                        selectedCategory == expenseCategoryTitle
+                                            ? Text(
+                                                expenseCategoryTitle,
+                                                style: const TextStyle(
+                                                    color: Colors.white,
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                              )
+                                            : Text(expenseCategoryTitle),
+                                        // the total  expense for each category
+                                        Text(
+                                          NumberFormat.currency(
+                                                  symbol: '\$',
+                                                  decimalDigits: 2)
+                                              .format(totalExpense),
+                                          style: selectedCategory ==
+                                                  expenseCategoryTitle
+                                              ? const TextStyle(
+                                                  color: Colors.white,
+                                                  fontWeight: FontWeight.bold)
+                                              : const TextStyle(
+                                                  color: Colors.black,
+                                                  fontWeight: FontWeight.bold),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              )),
+                        );
+                      });
+                }, error: (err, _) {
+                  return Text(
+                    err.toString(),
+                  );
+                }, loading: () {
+                  return const LoadingScreen();
+                }),
+              ),
+              showmediumspace(),
+              showBigText(text: "Today"),
+              showmediumspace(),
+              // Listview for showing expenses for the selected category
+              Expanded(
+                child: getExpenseFromFirebase.when(data: (data) {
+                  final categoryImages = ref.watch(expnenseImagesProvider);
+                  if (data.isNotEmpty) {
+                    int selectedCategoryIndex = data.indexWhere(
+                        (expense) => expense.category == selectedCategory);
+                    return ListView.builder(
+                        itemCount: data.length,
+                        itemBuilder: (context, index) {
+                          AddExpenseModel expense = data[index];
+                          if (selectedCategory != '' &&
+                              selectedCategory != expense.category) {
+                            return const SizedBox.shrink();
+                          }
+                          String dateFormat =
+                              DateFormat('dd-MM-yyyy').format(expense.date!);
+                          double amount =
+                              double.tryParse(expense.amount) ?? 0.0;
+                          String imageAssetPath;
+                          if (selectedCategoryIndex == 0) {
+                            imageAssetPath = categoryImages[0];
+                          } else if (selectedCategoryIndex == 1) {
+                            imageAssetPath = categoryImages[1];
+                          } else if (selectedCategoryIndex == 2) {
+                            imageAssetPath = categoryImages[2];
+                          } else if (selectedCategoryIndex == 3) {
+                            imageAssetPath = categoryImages[3];
+                          } else if (selectedCategoryIndex == 4) {
+                            imageAssetPath = categoryImages[4];
+                          } else if (selectedCategoryIndex == 5) {
+                            imageAssetPath = categoryImages[5];
+                          } else {
+                            imageAssetPath = categoryImages[6];
+                          }
+
+                          return Container(
+                            margin: const EdgeInsets.only(bottom: 5),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 2, vertical: 5),
+                            decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(10),
+                                boxShadow: const [
+                                  BoxShadow(
+                                    color: Colors.grey,
+                                    blurRadius: 5,
+                                    offset: Offset(0, 3),
+                                  )
+                                ]),
+                            child: ListTile(
+                              leading: Container(
+                                height: 40,
+                                width: 40,
+                                decoration: BoxDecoration(
+                                    color: Colors.grey[200],
+                                    image: DecorationImage(
+                                      image: AssetImage(imageAssetPath),
+                                    ),
+                                    shape: BoxShape.circle),
+                              ),
+                              title: Row(
+                                children: [
+                                  Text(
+                                    expense.title,
+                                  ),
+                                  const Spacer(),
+                                  Text(NumberFormat.currency(
+                                          symbol: '\$', decimalDigits: 2)
+                                      .format(amount))
+                                ],
+                              ),
+                              subtitle: Text(
+                                dateFormat.toString(),
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                ),
+                              ),
+                              trailing: IconButton(
+                                onPressed: () {
+                                  ref
+                                      .read(firebaseServicesProvider)
+                                      .deleteExpense(expenseId: expense.id!);
+                                },
+                                icon: Icon(
+                                  Icons.delete,
+                                  color: kcBackgroundColor,
+                                ),
+                              ),
+                            ),
+                          );
+                        });
+                  } else {
+                    return const Center(
+                        child: Text(
+                      "No Expenses , click the Add Icon below to add",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ));
+                  }
+                }, error: (err, _) {
+                  return Center(child: Text(err.toString()));
+                }, loading: () {
+                  return const LoadingScreen();
+                }),
+              ),
               // Daily Expanses List
             ],
           ),
         ),
-        floatingActionButton: FloatingActionButton.extended(
-            onPressed: () {},
-            label: Column(
-              children: [
-                const Icon(
-                  Icons.add,
-                  color: Colors.white,
-                ),
-                mediumText(text: "Add Expense", fontWeight: FontWeight.bold),
-              ],
-            )),
+        //floating action button for calling the add expense dialog
+
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+        floatingActionButton: Consumer(
+          builder: (context, ref, child) {
+            return FloatingActionButton(
+              shape: const CircleBorder(),
+              backgroundColor: kcBackgroundColor,
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => FormScreen(),
+                  ),
+                );
+              },
+              tooltip: "Add Expense",
+              child: const Icon(
+                Icons.add,
+                size: 30,
+                color: Colors.white,
+              ),
+            );
+          },
+        ),
       ),
     );
   }
